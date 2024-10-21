@@ -8,13 +8,10 @@
         <!-- Sidebar -->
         <div class="col-md-3">
             <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action active"
-                    onclick="showContent('overview')">Overview</a>
-                <a href="#" class="list-group-item list-group-item-action"
-                    onclick="showContent('schedule')">Schedule</a>
+                <a href="#" class="list-group-item list-group-item-action active" onclick="showContent('overview')">Overview</a>
+                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('schedule')">Schedule</a>
                 <a href="#" class="list-group-item list-group-item-action" onclick="showContent('forum')">Forum</a>
-                <a href="#" class="list-group-item list-group-item-action"
-                    onclick="showContent('settings')">Settings</a>
+                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('settings')">Settings</a>
                 <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">Logout</a>
             </div>
         </div>
@@ -45,28 +42,79 @@
                         <h4>Pricing Comparisons</h4>
                         <table class="table">
                             <thead>
-                                <tr>
-                                    <th scope="col">Medication</th>
-                                    <th scope="col">Dosage</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Order</th>
-                                </tr>
+                            <tr>
+                                <th scope="col">Medication</th>
+                                <th scope="col">Dosage</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Order</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Advil</td>
-                                    <td>200mg</td>
-                                    <td>$9.22</td>
-                                    <td><button class="btn btn-primary">Order</button></td>
-                                </tr>
+                            <tr>
+                                <td>Advil</td>
+                                <td>200mg</td>
+                                <td>$9.22</td>
+                                <td><button class="btn btn-primary">Order</button></td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- Schedule Section -->
                 <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>
+
+                <!-- Forum Section -->
                 <div id="forum" class="tab-content" style="display: none;">Forum Content</div>
-                <div id="settings" class="tab-content" style="display: none;">Settings Content</div>
+
+                <!-- Settings Section -->
+                <div id="settings" class="tab-content" style="display: none;">
+                    <h3 class="text-danger">Settings</h3>
+                    <div class="card mt-4 p-4">
+                        <div class="row align-items-center">
+                            <!-- Profile Image -->
+                            <div class="col-md-4 text-center">
+                                <div class="profile-img">
+                                    <img src="{{ url_for('static', filename='images/profile_placeholder.png') }}"
+                                         class="rounded-circle img-fluid"
+                                         alt="Profile Image">
+                                    <input type="file" id="profileImageUpload" class="form-control mt-2" aria-label="Upload Profile Image">
+                                    <label for="profileImageUpload" class="btn btn-light btn-sm mt-2">Click to change photo</label>
+                                </div>
+                            </div>
+
+                            <!-- Account Details -->
+                            <div class="col-md-8">
+                                <h4>Account Details</h4>
+                                <form method="POST" action="{{ url_for('update_settings') }}">
+                                    <div class="form-group mb-3">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" id="firstName" name="first_name" class="form-control" value="{{ current_user.first_name }}">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" id="lastName" name="last_name" class="form-control" value="{{ current_user.last_name }}">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="accountType" class="form-label">Account Type</label>
+                                        <input type="text" id="accountType" name="account_type" class="form-control" value="{{ current_user.account_type }}" readonly>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row mt-5">
+                            <div class="col">
+                                <h4>Security</h4>
+                                <a href="#" class="btn btn-outline-secondary">Change Password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

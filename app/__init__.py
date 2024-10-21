@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, redirect
+from flask import Flask, render_template, url_for, flash, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,7 +38,10 @@ def load_user(user_id):
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
     email = db.Column(db.String(50), nullable=False, unique=True)
+    account_type = db.Column(db.String(20), default="Patient")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(128))
 
@@ -72,18 +75,7 @@ class Medications(db.Model):
 
 # Create the database tables
 with app.app_context():
-
     db.create_all()  # This will create the database tables
-
-# Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return Users.query.get(int(user_id))
 
 
 @app.route("/")
@@ -131,27 +123,46 @@ def login():
                 return redirect(url_for("dashboard"))
             # If the password is wrong
             else:
-                flash("Wrong password! Try again!")
+                flash("Wrong password! Try again!", "danger")
         # If the user does not exist
         else:
-            flash("That user does not exist!")
+            flash("That user does not exist!", "danger")
     return render_template("login.html", form=form, users=users)
 
 
-@app.route("/logout", methods=["GET", "POST"])
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out!")
+    flash("You have been logged out!", "info")
     return redirect(url_for("login"))
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+    medications = Medications.query.filter_by(user_id=current_user.id).all()
+    return render_template("dashboard.html", current_user=current_user, medications=medications)
 
 
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    if request.method == "POST":
+        # Get form data
+        current_user.first_name = request.form.get('first_name')
+        current_user.last_name = request.form.get('last_name')
+        current_user.email = request.form.get('email')
+
+        # Save changes to the database
+        db.session.commit()
+        flash("Account details updated successfully.", "success")
+        return redirect(url_for("dashboard"))
+
+    return render_template("settings.html", current_user=current_user)
+
+
+# Register form
 class RegisterForm(FlaskForm):
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=4, max=20)]
@@ -164,7 +175,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Register")
 
 
-# Sample form for logging in
+# Login form
 class LoginForm(FlaskForm):
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=4, max=20)]
