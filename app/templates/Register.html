@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<form method="POST" action="">
+  {{ form.hidden_tag() }} <!-- Protects against CSRF attacks -->
+
+  <!-- Username Field -->
+  <div class="mb-3">
+    {{ form.username.label(class="form-label") }}
+    {{ form.username(class="form-control", placeholder="Enter username") }}
+    {% if form.username.errors %}
+    <div class="invalid-feedback d-block">
+      {% for error in form.username.errors %}
+      {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Email Field -->
+  <div class="mb-3">
+    {{ form.email.label(class="form-label") }}
+    {{ form.email(class="form-control", placeholder="Enter email") }}
+    {% if form.email.errors %}
+    <div class="invalid-feedback d-block">
+      {% for error in form.email.errors %}
+      {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Password Field -->
+  <div class="mb-3">
+    {{ form.password.label(class="form-label") }}
+    {{ form.password(class="form-control", placeholder="Enter password") }}
+    {% if form.password.errors %}
+    <div class="invalid-feedback d-block">
+      {% for error in form.password.errors %}
+      {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Password Confirm Field -->
+  <div class="mb-3">
+    {{ form.password_confirm.label(class="form-label") }}
+    {{ form.password_confirm(class="form-control", placeholder="Confirm password") }}
+    {% if form.password_confirm.errors %}
+    <div class="invalid-feedback d-block">
+      {% for error in form.password_confirm.errors %}
+      {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Submit Button -->
+  <div class="mb-3">
+    {{ form.submit(class="btn btn-primary w-100") }}
+  </div>
+</form>
+{% endblock %}
