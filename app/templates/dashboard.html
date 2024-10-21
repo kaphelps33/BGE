@@ -8,10 +8,13 @@
         <!-- Sidebar -->
         <div class="col-md-3">
             <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action active" onclick="showContent('overview')">Overview</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('schedule')">Schedule</a>
+                <a href="#" class="list-group-item list-group-item-action active"
+                    onclick="showContent('overview')">Overview</a>
+                <a href="#" class="list-group-item list-group-item-action"
+                    onclick="showContent('schedule')">Schedule</a>
                 <a href="#" class="list-group-item list-group-item-action" onclick="showContent('forum')">Forum</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('settings')">Settings</a>
+                <a href="#" class="list-group-item list-group-item-action"
+                    onclick="showContent('settings')">Settings</a>
                 <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">Logout</a>
             </div>
         </div>
@@ -19,8 +22,8 @@
         <!-- Main Content -->
         <div class="col-md-9">
             <!-- Header with User and Date -->
-            <h2>Welcome {{ user.username }}</h2>
-            <p>{{ user.date_added.strftime('%B %d, %Y') }}</p>
+            <h2>Welcome {{ current_user.username }}</h2>
+            <p>{{ current_user.date_added.strftime('%B %d, %Y') }}</p>
 
             <!-- Dynamic Content Sections -->
             <div id="content">
@@ -42,20 +45,20 @@
                         <h4>Pricing Comparisons</h4>
                         <table class="table">
                             <thead>
-                            <tr>
-                                <th scope="col">Medication</th>
-                                <th scope="col">Dosage</th>
-                                <th scope="col">Price</th>
-                                <th scope="col">Order</th>
-                            </tr>
+                                <tr>
+                                    <th scope="col">Medication</th>
+                                    <th scope="col">Dosage</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Order</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>Advil</td>
-                                <td>200mg</td>
-                                <td>$9.22</td>
-                                <td><button class="btn btn-primary">Order</button></td>
-                            </tr>
+                                <tr>
+                                    <td>Advil</td>
+                                    <td>200mg</td>
+                                    <td>$9.22</td>
+                                    <td><button class="btn btn-primary">Order</button></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

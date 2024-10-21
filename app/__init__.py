@@ -26,11 +26,13 @@ db = SQLAlchemy(app)
 # Set up Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # Redirect to login page if not authenticated
+login_manager.login_view = "login"  # Redirect to login page if not authenticated
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
+
 
 # User model
 class Users(db.Model, UserMixin):
@@ -54,17 +56,19 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.username}>"
 
+
 # Medication model
 class Medications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=False)
     duration = db.Column(db.String(50))  # Example: '7 Days'
-    user = db.relationship('Users', backref='medications', lazy=True)
+    user = db.relationship("Users", backref="medications", lazy=True)
 
     def __repr__(self):
         return f"<Medication {self.name}>"
+
 
 # Create the database tables
 with app.app_context():
@@ -79,12 +83,13 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    Users.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -109,6 +114,7 @@ def register():
             flash("Registration successful! You can now log in.", "success")
             return redirect(url_for("login"))
     return render_template("register.html", form=form)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -157,6 +163,7 @@ class RegisterForm(FlaskForm):
     password_confirm = PasswordField("Confirm Password", validators=[DataRequired()])
     submit = SubmitField("Register")
 
+
 # Sample form for logging in
 class LoginForm(FlaskForm):
     username = StringField(
@@ -164,6 +171,7 @@ class LoginForm(FlaskForm):
     )
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
+
 
 # Running the app
 if __name__ == "__main__":
