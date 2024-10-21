@@ -23,13 +23,21 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 db = SQLAlchemy(app)
 
+# Set up Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Redirect to login page if not authenticated
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
 
 # User model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
     email = db.Column(db.String(50), nullable=False, unique=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)  # Add a default date
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(128))
 
     @property
@@ -38,7 +46,7 @@ class Users(db.Model, UserMixin):
 
     @password.setter
     def password(self, password):
-        self.password_hash = generate_password_hash(password)  # Fix the attribute name
+        self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -46,9 +54,21 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.username}>"
 
+# Medication model
+class Medications(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    duration = db.Column(db.String(50))  # Example: '7 Days'
+    user = db.relationship('Users', backref='medications', lazy=True)
+
+    def __repr__(self):
+        return f"<Medication {self.name}>"
 
 # Create the database tables
 with app.app_context():
+
     db.create_all()  # This will create the database tables
 
 # Login
@@ -66,33 +86,34 @@ def load_user(user_id):
 def index():
     return render_template("index.html")
 
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        # Create a new user
-        new_user = Users(
-            username=form.username.data,
-            email=form.email.data,
-            password=form.password.data,  # This will call the setter method to hash the password
-        )
+        # Check if username or email already exists
+        existing_user = Users.query.filter(
+            (Users.username == form.username.data) | (Users.email == form.email.data)
+        ).first()
 
-        # Add the user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash("Registration successful! You can now log in.", "success")
-        return redirect(
-            url_for("login")
-        )  # Redirect to login after successful registration
+        if existing_user:
+            flash("Username or email already exists.", "danger")
+        else:
+            # Create a new user
+            new_user = Users(
+                username=form.username.data,
+                email=form.email.data,
+                password=form.password.data,  # Password will be hashed
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Registration successful! You can now log in.", "success")
+            return redirect(url_for("login"))
     return render_template("register.html", form=form)
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
-    users = Users.query.all()  # Query all users from the database
+    users = Users.query.all()  # Display all registered users on the login page
     if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user:
@@ -109,6 +130,15 @@ def login():
         else:
             flash("That user does not exist!")
     return render_template("login.html", form=form, users=users)
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    # Get the current user
+    user = current_user
+
+    # Query medications specific to the logged-in user
+    medications = Medications.query.filter_by(user_id=user.id).all()
 
 
 @app.route("/logout", methods=["GET", "POST"])
@@ -136,14 +166,13 @@ class RegisterForm(FlaskForm):
     password_confirm = PasswordField("Confirm Password", validators=[DataRequired()])
     submit = SubmitField("Register")
 
-
+# Sample form for logging in
 class LoginForm(FlaskForm):
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=4, max=20)]
     )
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
-
 
 # Running the app
 if __name__ == "__main__":
