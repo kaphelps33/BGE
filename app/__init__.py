@@ -68,7 +68,19 @@ class Medications(db.Model):
 
 # Create the database tables
 with app.app_context():
-    db.create_all()
+
+    db.create_all()  # This will create the database tables
+
+# Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    Users.query.get(int(user_id))
+
 
 @app.route("/")
 def index():
@@ -103,16 +115,20 @@ def login():
     form = LoginForm()
     users = Users.query.all()  # Display all registered users on the login page
     if form.validate_on_submit():
-        # Query user by username
         user = Users.query.filter_by(username=form.username.data).first()
-
-        # Check if user exists and password is correct
-        if user and user.verify_password(form.password.data):
-            login_user(user)  # Log the user in
-            flash(f"Logged in as {user.username}!", "success")
-            return redirect(url_for("dashboard"))
+        if user:
+            # Check hash
+            if check_password_hash(user.password_hash, form.password.data):
+                login_user(user)
+                flash(f"Logged in as {form.username.data}!", "success")
+                # Direct user to dashboard
+                return redirect(url_for("dashboard"))
+            # If the password is wrong
+            else:
+                flash("Wrong password! Try again!")
+        # If the user does not exist
         else:
-            flash("Login failed. Check username and password.", "danger")
+            flash("That user does not exist!")
     return render_template("login.html", form=form, users=users)
 
 @app.route("/dashboard")
@@ -124,31 +140,21 @@ def dashboard():
     # Query medications specific to the logged-in user
     medications = Medications.query.filter_by(user_id=user.id).all()
 
-    return render_template("dashboard.html", user=user, medications=medications)
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out.", "info")
+    flash("You have been logged out!")
     return redirect(url_for("login"))
 
-@app.route("/schedule")
-@login_required
-def schedule():
-    return render_template("schedule.html")
 
-@app.route("/forum")
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
-def forum():
-    return render_template("forum.html")
+def dashboard():
+    return render_template("dashboard.html")
 
-@app.route("/settings")
-@login_required
-def settings():
-    return render_template("settings.html")
 
-# Sample form for registering users
 class RegisterForm(FlaskForm):
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=4, max=20)]
