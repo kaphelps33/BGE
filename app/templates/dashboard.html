@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active">Overview</a>
+                <a href="#" class="list-group-item list-group-item-action">Schedule</a>
+                <a href="#" class="list-group-item list-group-item-action">Forum</a>
+                <a href="#" class="list-group-item list-group-item-action">Settings</a>
+                <a href="#" class="list-group-item list-group-item-action text-danger">Logout</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Header with User and Date -->
+            <h2>Welcome {{ user.name }}</h2>
+            <p>{{ user.date }} - {{ user.time }}</p>
+
+            <!-- Medication List -->
+            <div class="list-group">
+                {% for med in medications %}
+                <div class="card my-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ med.name }}</h5>
+                        <p class="card-text">{{ med.description }}</p>
+                        <span class="badge bg-secondary">{{ med.duration }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pricing Comparison -->
+            <div class="mt-4">
+                <h4>Pricing Comparisons</h4>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Medication</th>
+                        <th scope="col">Dosage</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Order</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Advil</td>
+                        <td>200mg</td>
+                        <td>$9.22</td>
+                        <td><button class="btn btn-primary">Order</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
