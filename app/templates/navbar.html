@@ -11,8 +11,12 @@
           <a class="nav-link" aria-current="page" href="{{ url_for('index') }}">Home</a>
         </li>
       </ul>
+      {% if current_user.is_authenticated %}
       <!-- Login button -->
       <a href="{{ url_for('login') }}" class="btn btn-outline-primary ms-auto"">Login</a>
+      {% else %}
+      <a href=" {{ url_for('logout') }}" class="btn btn-outline-danger ms-auto"">Logout</a>
+      {% endif %}
     </div>
   </div>
 </nav>

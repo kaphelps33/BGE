@@ -111,9 +111,17 @@ def login():
     return render_template("login.html", form=form, users=users)
 
 
+@app.route("/logout", methods=["GET", "POST"])
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out!")
+    return redirect(url_for("login"))
+
+
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
-def Dashboard():
+def dashboard():
     return render_template("dashboard.html")
 
 

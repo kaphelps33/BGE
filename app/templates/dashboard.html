@@ -3,5 +3,37 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar bg-light">
+    <h2 class="text-center">Dashboard</h2>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Settings</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Reports</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Help</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <h1>Welcome to Your Dashboard</h1>
+    <p>This is where your dashboard content will go.</p>
+    <!-- Add more content here -->
+  </div>
+</div>
 {% endblock %}
