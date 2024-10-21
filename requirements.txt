@@ -7,8 +7,14 @@ Flask-WTF==1.2.1
 itsdangerous==2.2.0
 Jinja2==3.1.4
 MarkupSafe==3.0.2
+numpy==2.1.2
+pandas==2.2.3
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+pytz==2024.2
+six==1.16.0
 SQLAlchemy==2.0.36
 typing_extensions==4.12.2
+tzdata==2024.2
 Werkzeug==3.0.4
 WTForms==3.2.1
