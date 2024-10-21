@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3>Showing results for: {{ query }}</h3>
+    <div class="list-group mt-3">
+        {% for med in medications %}
+        <div class="card my-2">
+            <div class="card-body">
+                <h5 class="card-title">{{ med.name }}</h5>
+                <p class="card-text">{{ med.dosage }} - {{ med.description }}</p>
+                <p class="card-text text-muted">${{ med.price }} low price</p>
+                <form method="POST" action="{{ url_for('add_medication', medication_id=med.id) }}">
+                    <button type="submit" class="btn btn-primary">Add to Dashboard</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% if medications|length == 0 %}
+        <p>No medications found for your search.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -67,14 +67,18 @@ class Users(db.Model, UserMixin):
 # Medication model
 class Medications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)  # Allow null for medications added globally
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=False)
+    dosage = db.Column(db.String(50), nullable=False)  # Add dosage
+    price = db.Column(db.Float, nullable=False)  # Add price
     duration = db.Column(db.String(50))  # Example: '7 Days'
     user = db.relationship("Users", backref="medications", lazy=True)
 
     def __repr__(self):
         return f"<Medication {self.name}>"
+
+
 
 
 @app.route("/")
@@ -215,6 +219,42 @@ def change_password():
                            medications=Medications.query.filter_by(user_id=current_user.id).all(),
                            password_message=password_message)
 
+
+@app.route('/search_medication', methods=['GET'])
+@login_required
+def search_medication():
+    query = request.args.get('query')
+    if query:
+        # Assuming Medications is your model for medications
+        search_results = Medications.query.filter(Medications.name.ilike(f'%{query}%')).all()
+    else:
+        search_results = []
+
+    return render_template('dashboard.html', medications=search_results, current_user=current_user)
+
+
+@app.route("/add_medication/<int:medication_id>", methods=["POST"])
+@login_required
+def add_medication(medication_id):
+    # Find the medication in the database
+    medication = Medications.query.get(medication_id)
+    if not medication:
+        flash("Medication not found.", "danger")
+        return redirect(url_for("dashboard"))
+
+    # Create a new entry in the Medications model linked to the user
+    new_medication = Medications(
+        user_id=current_user.id,
+        name=medication.name,
+        description=medication.description,
+        dosage=medication.dosage,
+        price=medication.price
+    )
+    db.session.add(new_medication)
+    db.session.commit()
+
+    flash(f"{medication.name} has been added to your dashboard.", "success")
+    return redirect(url_for("dashboard"))
 
 
 
