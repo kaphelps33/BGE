@@ -131,15 +131,6 @@ def login():
             flash("That user does not exist!")
     return render_template("login.html", form=form, users=users)
 
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    # Get the current user
-    user = current_user
-
-    # Query medications specific to the logged-in user
-    medications = Medications.query.filter_by(user_id=user.id).all()
-
 
 @app.route("/logout", methods=["GET", "POST"])
 @login_required
