@@ -8,12 +8,10 @@
         <!-- Sidebar -->
         <div class="col-md-3">
             <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action active">Overview</a>
-                <!-- Updated the href to link to the respective routes -->
-                <a href="{{ url_for('schedule') }}" class="list-group-item list-group-item-action">Schedule</a>
-                <a href="{{ url_for('forum') }}" class="list-group-item list-group-item-action">Forum</a>
-                <a href="{{ url_for('settings') }}" class="list-group-item list-group-item-action">Settings</a>
-                <!-- Logout link that calls the logout route -->
+                <a href="#" class="list-group-item list-group-item-action active" onclick="showContent('overview')">Overview</a>
+                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('schedule')">Schedule</a>
+                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('forum')">Forum</a>
+                <a href="#" class="list-group-item list-group-item-action" onclick="showContent('settings')">Settings</a>
                 <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">Logout</a>
             </div>
         </div>
@@ -24,42 +22,72 @@
             <h2>Welcome {{ user.username }}</h2>
             <p>{{ user.date_added.strftime('%B %d, %Y') }}</p>
 
-            <!-- Medication List -->
-            <div class="list-group">
-                {% for med in medications %}
-                <div class="card my-2">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ med.name }}</h5>
-                        <p class="card-text">{{ med.description }}</p>
-                        <span class="badge bg-secondary">{{ med.duration }}</span>
+            <!-- Dynamic Content Sections -->
+            <div id="content">
+                <div id="overview" class="tab-content">
+                    <div class="list-group">
+                        {% for med in medications %}
+                        <div class="card my-2">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ med.name }}</h5>
+                                <p class="card-text">{{ med.description }}</p>
+                                <span class="badge bg-secondary">{{ med.duration }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pricing Comparison -->
+                    <div class="mt-4">
+                        <h4>Pricing Comparisons</h4>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Medication</th>
+                                <th scope="col">Dosage</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Order</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Advil</td>
+                                <td>200mg</td>
+                                <td>$9.22</td>
+                                <td><button class="btn btn-primary">Order</button></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
 
-            <!-- Pricing Comparison -->
-            <div class="mt-4">
-                <h4>Pricing Comparisons</h4>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th scope="col">Medication</th>
-                        <th scope="col">Dosage</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Order</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Advil</td>
-                        <td>200mg</td>
-                        <td>$9.22</td>
-                        <td><button class="btn btn-primary">Order</button></td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>
+                <div id="forum" class="tab-content" style="display: none;">Forum Content</div>
+                <div id="settings" class="tab-content" style="display: none;">Settings Content</div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function showContent(tabName) {
+        // Hide all tab contents
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.style.display = 'none');
+
+        // Show the selected tab content
+        document.getElementById(tabName).style.display = 'block';
+
+        // Update the active tab style
+        const tabs = document.querySelectorAll('.list-group-item');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // Set the clicked tab as active
+        const activeTab = Array.from(tabs).find(tab => tab.innerText.toLowerCase() === tabName);
+        if (activeTab) activeTab.classList.add('active');
+    }
+
+    // Initialize by showing the overview tab
+    showContent('overview');
+</script>
 {% endblock %}
