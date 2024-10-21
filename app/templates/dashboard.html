@@ -86,7 +86,7 @@
                             <!-- Account Details -->
                             <div class="col-md-8">
                                 <h4>Account Details</h4>
-                                <form method="POST" action="{{ url_for('update_settings') }}">
+                                <form method="POST" action="{{ url_for('settings') }}">
                                     <div class="form-group mb-3">
                                         <label for="firstName" class="form-label">First Name</label>
                                         <input type="text" id="firstName" name="first_name" class="form-control" value="{{ current_user.first_name }}">

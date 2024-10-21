@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, flash, redirect, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate  # Import Migrate here
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
@@ -22,6 +23,9 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 db = SQLAlchemy(app)
+
+# Set up Flask-Migrate
+migrate = Migrate(app, db)
 
 # Set up Flask-Login
 login_manager = LoginManager()
@@ -71,11 +75,6 @@ class Medications(db.Model):
 
     def __repr__(self):
         return f"<Medication {self.name}>"
-
-
-# Create the database tables
-with app.app_context():
-    db.create_all()  # This will create the database tables
 
 
 @app.route("/")
