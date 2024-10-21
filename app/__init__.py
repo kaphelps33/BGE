@@ -148,7 +148,29 @@ def dashboard():
 @login_required
 def settings():
     if request.method == "POST":
-        # Get form data
+        # If current_password is provided, handle password change
+        if "current_password" in request.form:
+            current_password = request.form.get("current_password")
+            new_password = request.form.get("new_password")
+            confirm_new_password = request.form.get("confirm_new_password")
+
+            # Verify current password
+            if not current_user.verify_password(current_password):
+                flash("Current password is incorrect.", "danger")
+                return redirect(url_for("dashboard"))
+
+            # Check if new passwords match
+            if new_password != confirm_new_password:
+                flash("New passwords do not match.", "danger")
+                return redirect(url_for("dashboard"))
+
+            # Update password
+            current_user.password = new_password
+            db.session.commit()
+            flash("Your password has been updated successfully.", "success")
+            return redirect(url_for("dashboard"))
+
+        # Otherwise, handle profile information update
         current_user.first_name = request.form.get('first_name')
         current_user.last_name = request.form.get('last_name')
         current_user.email = request.form.get('email')
@@ -159,6 +181,41 @@ def settings():
         return redirect(url_for("dashboard"))
 
     return render_template("settings.html", current_user=current_user)
+
+
+@app.route("/change_password", methods=["POST"])
+@login_required
+def change_password():
+    current_password = request.form.get("current_password")
+    new_password = request.form.get("new_password")
+    confirm_new_password = request.form.get("confirm_new_password")
+
+    # Verify current password
+    if not current_user.verify_password(current_password):
+        password_message = "Current password was incorrect."
+        return render_template("dashboard.html",
+                               current_user=current_user,
+                               medications=Medications.query.filter_by(user_id=current_user.id).all(),
+                               password_message=password_message)
+
+    # Check if new passwords match
+    if new_password != confirm_new_password:
+        password_message = "New passwords do not match."
+        return render_template("dashboard.html",
+                               current_user=current_user,
+                               medications=Medications.query.filter_by(user_id=current_user.id).all(),
+                               password_message=password_message)
+
+    # Update password
+    current_user.password = new_password
+    db.session.commit()
+    password_message = "Password successfully changed!"
+    return render_template("dashboard.html",
+                           current_user=current_user,
+                           medications=Medications.query.filter_by(user_id=current_user.id).all(),
+                           password_message=password_message)
+
+
 
 
 # Register form

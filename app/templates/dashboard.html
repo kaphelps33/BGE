@@ -99,10 +99,6 @@
                                         <label for="email" class="form-label">Email</label>
                                         <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}">
                                     </div>
-                                    <div class="form-group mb-3">
-                                        <label for="accountType" class="form-label">Account Type</label>
-                                        <input type="text" id="accountType" name="account_type" class="form-control" value="{{ current_user.account_type }}" readonly>
-                                    </div>
                                     <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
                                 </form>
                             </div>
@@ -110,7 +106,26 @@
                         <div class="row mt-5">
                             <div class="col">
                                 <h4>Security</h4>
-                                <a href="#" class="btn btn-outline-secondary">Change Password</a>
+                                <!-- Display Password Change Messages -->
+                                {% if password_message %}
+                                <div class="alert alert-info">{{ password_message }}</div>
+                                {% endif %}
+                                <!-- Change Password Form -->
+                                <form method="POST" action="{{ url_for('change_password') }}">
+                                    <div class="form-group mb-3">
+                                        <label for="currentPassword" class="form-label">Current Password</label>
+                                        <input type="password" id="currentPassword" name="current_password" class="form-control" placeholder="Enter current password" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="newPassword" class="form-label">New Password</label>
+                                        <input type="password" id="newPassword" name="new_password" class="form-control" placeholder="Enter new password" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                        <input type="password" id="confirmNewPassword" name="confirm_new_password" class="form-control" placeholder="Confirm new password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-secondary">Change Password</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -138,7 +153,15 @@
         if (activeTab) activeTab.classList.add('active');
     }
 
-    // Initialize by showing the overview tab
-    showContent('overview');
+    // Initialize by showing the overview tab or settings if there is a message
+    document.addEventListener('DOMContentLoaded', function () {
+        const hasPasswordMessage = {{ 'true' if password_message else 'false' }};
+        if (hasPasswordMessage) {
+            showContent('settings');
+        } else {
+            showContent('overview');
+        }
+    });
 </script>
+
 {% endblock %}
