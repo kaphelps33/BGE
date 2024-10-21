@@ -101,6 +101,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
+    users = Users.query.all()  # Display all registered users on the login page
     if form.validate_on_submit():
         # Query user by username
         user = Users.query.filter_by(username=form.username.data).first()
@@ -112,7 +113,7 @@ def login():
             return redirect(url_for("dashboard"))
         else:
             flash("Login failed. Check username and password.", "danger")
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, users=users)
 
 @app.route("/dashboard")
 @login_required
@@ -131,6 +132,21 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
+
+@app.route("/schedule")
+@login_required
+def schedule():
+    return render_template("schedule.html")
+
+@app.route("/forum")
+@login_required
+def forum():
+    return render_template("forum.html")
+
+@app.route("/settings")
+@login_required
+def settings():
+    return render_template("settings.html")
 
 # Sample form for registering users
 class RegisterForm(FlaskForm):
