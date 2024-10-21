@@ -51,6 +51,16 @@ class Users(db.Model, UserMixin):
 with app.app_context():
     db.create_all()  # This will create the database tables
 
+# Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    Users.query.get(int(user_id))
+
 
 @app.route("/")
 def index():
@@ -84,10 +94,27 @@ def login():
     form = LoginForm()
     users = Users.query.all()  # Query all users from the database
     if form.validate_on_submit():
-        # TODO: CHECK CREDENTIALS
-        flash(f"Logged in as {form.username.data}!", "success")
-        return redirect(url_for("home"))
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user:
+            # Check hash
+            if check_password_hash(user.password_hash, form.password.data):
+                login_user(user)
+                flash(f"Logged in as {form.username.data}!", "success")
+                # Direct user to dashboard
+                return redirect(url_for("dashboard"))
+            # If the password is wrong
+            else:
+                flash("Wrong password! Try again!")
+        # If the user does not exist
+        else:
+            flash("That user does not exist!")
     return render_template("login.html", form=form, users=users)
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
+@login_required
+def Dashboard():
+    return render_template("dashboard.html")
 
 
 class RegisterForm(FlaskForm):
