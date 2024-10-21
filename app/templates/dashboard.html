@@ -9,18 +9,20 @@
         <div class="col-md-3">
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action active">Overview</a>
-                <a href="#" class="list-group-item list-group-item-action">Schedule</a>
-                <a href="#" class="list-group-item list-group-item-action">Forum</a>
-                <a href="#" class="list-group-item list-group-item-action">Settings</a>
-                <a href="#" class="list-group-item list-group-item-action text-danger">Logout</a>
+                <!-- Updated the href to link to the respective routes -->
+                <a href="{{ url_for('schedule') }}" class="list-group-item list-group-item-action">Schedule</a>
+                <a href="{{ url_for('forum') }}" class="list-group-item list-group-item-action">Forum</a>
+                <a href="{{ url_for('settings') }}" class="list-group-item list-group-item-action">Settings</a>
+                <!-- Logout link that calls the logout route -->
+                <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">Logout</a>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="col-md-9">
             <!-- Header with User and Date -->
-            <h2>Welcome {{ user.name }}</h2>
-            <p>{{ user.date }} - {{ user.time }}</p>
+            <h2>Welcome {{ user.username }}</h2>
+            <p>{{ user.date_added.strftime('%B %d, %Y') }}</p>
 
             <!-- Medication List -->
             <div class="list-group">
