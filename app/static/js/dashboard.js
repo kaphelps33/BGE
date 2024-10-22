@@ -1,3 +1,26 @@
+function showContent(contentId) {
+  // Hide all content sections
+  document.querySelectorAll('.tab-content').forEach(function (content) {
+    content.style.display = 'none';
+  });
+
+  // Remove 'active' class from all links
+  document.querySelectorAll('.list-group-item').forEach(function (link) {
+    link.classList.remove('active');
+  });
+
+  // Show the selected content section
+  document.getElementById(contentId).style.display = 'block';
+
+  // Add 'active' class to the clicked link
+  event.target.classList.add('active');
+}
+
+// Initialize the default view (Overview)
+document.addEventListener('DOMContentLoaded', function () {
+  showContent('overview');  // Show overview content by default
+});
+
 function handleAddMedicationClick(button) {
   const medicationInfo = {
     id: button.getAttribute("data-med-id"),
