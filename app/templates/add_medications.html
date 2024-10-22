@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Add Medications</h1>
+  <p>This is the schedule page content.</p>
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      <div class="row">
+        <div class="col">
+          {{ form.dosage.label(class="form-label") }}
+          {{ form.dosage(class="form-control", placeholder="Dosage") }}
+        </div>
+        <div class="col">
+          {{ form.unit.label(class="form-label") }}
+          {{ form.unit(class="form-control") }}
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      {{ form.price.label(class="form-label") }}
+      {{ form.price(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.duration.label(class="form-label") }}
+      {{ form.duration(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+  <a href="{{ url_for('dash.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

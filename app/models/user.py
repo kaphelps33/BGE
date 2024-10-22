@@ -35,6 +35,8 @@ class Users(db.Model, UserMixin):
     account_type = db.Column(db.String(20), default="Patient")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(128))
+    # User can have many medications
+    medications = db.relationship("Medications", backref="medication")
 
     @property
     def password(self):

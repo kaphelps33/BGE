@@ -1,7 +1,7 @@
 """Routes for dashboard
 """
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
     login_required,
@@ -11,6 +11,7 @@ from app.dashboard import dash
 from app.extensions import db
 from app.models.medication import Medications
 from app.models.medicationData import MedicationData
+from app.dashboard.forms import MedicationForm
 
 
 @dash.route("/dashboard", methods=["GET", "POST"])
@@ -26,6 +27,7 @@ def dashboard():
         Response: Renders the dashboard page with the current user and their
         medications.
     """
+
     medications = Medications.query.filter_by(user_id=current_user.id).all()
     return render_template(
         "dashboard.html", current_user=current_user, medications=medications
@@ -152,25 +154,52 @@ def search_medication():
     return render_template("search_results.html", medications=search_results)
 
 
-@dash.route("/add_medication/<int:medication_id>", methods=["POST"])
+@dash.route("/add_medication", methods=["GET", "POST"])
+@dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_medication(medication_id):
-    # Find the medication in the database
-    medication = Medications.query.get(medication_id)
-    if not medication:
-        flash("Medication not found.", "danger")
-        return redirect(url_for("dashboard"))
+def add_medication(id):
+    form = MedicationForm()
+    if form.validate_on_submit():
+        dosage = form.dosage.data
+        unit = form.unit.data
+        price = form.price.data
+        duration = form.duration.data
 
-    # Create a new entry in the Medications model linked to the user
-    new_medication = Medications(
-        user_id=current_user.id,
-        name=medication.name,
-        description=medication.description,
-        dosage=medication.dosage,
-        price=medication.price,
-    )
-    db.session.add(new_medication)
+        if id is not None:
+            medication = (
+                db.session.query(MedicationData).filter(MedicationData.id == id).first()
+            )
+            if medication:
+                new_medication = Medications(
+                    user_id=current_user.id,
+                    name=medication.drug_name,
+                    description=medication.medical_condition_description,
+                    dosage=f"{dosage} {unit}".strip(),
+                    price=price,
+                    duration=duration,
+                    medication_data=medication.id,
+                )
+
+                db.session.add(new_medication)
+                db.session.commit()
+
+                print(f"Medication added: {new_medication}")
+                return redirect(url_for("dash.dashboard"))
+            else:
+                print("No medication found with the given ID.")
+
+    return render_template("add_medications.html", form=form)
+
+
+@dash.route("/delete_medication/<int:id>", methods=["POST"])
+def delete_medication(id):
+    medication = Medications.query.get_or_404(id)
+
+    # Ensure that the medication belongs to the current user
+    if medication.user_id != current_user.id:
+        return redirect(url_for("dash.dashboard"))
+
+    db.session.delete(medication)
     db.session.commit()
 
-    flash(f"{medication.name} has been added to your dashboard.", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dash.dashboard"))
