@@ -9,12 +9,12 @@
         <div class="col-md-3">
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action active"
-                   onclick="showContent('overview')">Overview</a>
+                    onclick="showContent('overview')">Overview</a>
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="showContent('schedule')">Schedule</a>
+                    onclick="showContent('schedule')">Schedule</a>
                 <a href="#" class="list-group-item list-group-item-action" onclick="showContent('forum')">Forum</a>
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="showContent('settings')">Settings</a>
+                    onclick="showContent('settings')">Settings</a>
                 <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">Logout</a>
             </div>
         </div>
@@ -26,98 +26,88 @@
             <p>{{ current_user.date_added.strftime('%B %d, %Y') }}</p>
 
             <!-- Search Bar -->
-            <form method="GET" action="{{ url_for('search_medication') }}">
+            <form>
                 <div class="input-group mb-3">
-                    <input type="text" name="query" class="form-control" placeholder="Search medication" aria-label="Search medication" required>
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    <input type="text" name="query" class="form-control" placeholder="Search medication"
+                        aria-label="Search medication" hx-get="{{ url_for('search_medication') }}" hx-target="#results"
+                        hx-trigger="keyup changed delay:50ms">
                 </div>
             </form>
+            <ul id="results" class="list-group"></ul>
 
-            <!-- Dynamic Content Sections -->
-            <div id="content">
-                <!-- Overview Section -->
-                <div id="overview" class="tab-content">
-                    <div class="list-group">
-                        {% for med in medications %}
-                        <div class="card my-2">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ med.name }}</h5>
-                                <p class="card-text">{{ med.description }}</p>
-                                <p class="card-text"><strong>Dosage:</strong> {{ med.dosage }}</p>
-                                <p class="card-text"><strong>Price:</strong> ${{ med.price }}</p>
-                                <span class="badge bg-secondary">{{ med.duration }}</span>
+
+            <!-- Schedule Section -->
+            <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>
+
+            <!-- Forum Section -->
+            <div id="forum" class="tab-content" style="display: none;">Forum Content</div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="tab-content" style="display: none;">
+                <h3 class="text-danger">Settings</h3>
+                <div class="card mt-4 p-4">
+                    <div class="row align-items-center">
+                        <!-- Profile Image -->
+                        <div class="col-md-4 text-center">
+                            <div class="profile-img">
+                                <img src="{{ url_for('static', filename='images/profile_placeholder.png') }}"
+                                    class="rounded-circle img-fluid" alt="Profile Image">
+                                <input type="file" id="profileImageUpload" class="form-control mt-2"
+                                    aria-label="Upload Profile Image">
+                                <label for="profileImageUpload" class="btn btn-light btn-sm mt-2">Click to change
+                                    photo</label>
                             </div>
                         </div>
-                        {% endfor %}
-                    </div>
-                </div>
 
-                <!-- Schedule Section -->
-                <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>
-
-                <!-- Forum Section -->
-                <div id="forum" class="tab-content" style="display: none;">Forum Content</div>
-
-                <!-- Settings Section -->
-                <div id="settings" class="tab-content" style="display: none;">
-                    <h3 class="text-danger">Settings</h3>
-                    <div class="card mt-4 p-4">
-                        <div class="row align-items-center">
-                            <!-- Profile Image -->
-                            <div class="col-md-4 text-center">
-                                <div class="profile-img">
-                                    <img src="{{ url_for('static', filename='images/profile_placeholder.png') }}"
-                                         class="rounded-circle img-fluid"
-                                         alt="Profile Image">
-                                    <input type="file" id="profileImageUpload" class="form-control mt-2" aria-label="Upload Profile Image">
-                                    <label for="profileImageUpload" class="btn btn-light btn-sm mt-2">Click to change photo</label>
+                        <!-- Account Details -->
+                        <div class="col-md-8">
+                            <h4>Account Details</h4>
+                            <form method="POST" action="{{ url_for('settings') }}">
+                                <div class="form-group mb-3">
+                                    <label for="firstName" class="form-label">First Name</label>
+                                    <input type="text" id="firstName" name="first_name" class="form-control"
+                                        value="{{ current_user.first_name }}">
                                 </div>
-                            </div>
-
-                            <!-- Account Details -->
-                            <div class="col-md-8">
-                                <h4>Account Details</h4>
-                                <form method="POST" action="{{ url_for('settings') }}">
-                                    <div class="form-group mb-3">
-                                        <label for="firstName" class="form-label">First Name</label>
-                                        <input type="text" id="firstName" name="first_name" class="form-control" value="{{ current_user.first_name }}">
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="lastName" class="form-label">Last Name</label>
-                                        <input type="text" id="lastName" name="last_name" class="form-control" value="{{ current_user.last_name }}">
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
-                                </form>
-                            </div>
+                                <div class="form-group mb-3">
+                                    <label for="lastName" class="form-label">Last Name</label>
+                                    <input type="text" id="lastName" name="last_name" class="form-control"
+                                        value="{{ current_user.last_name }}">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control"
+                                        value="{{ current_user.email }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
+                            </form>
                         </div>
-                        <div class="row mt-5">
-                            <div class="col">
-                                <h4>Security</h4>
-                                <!-- Display Password Change Messages -->
-                                {% if password_message %}
-                                <div class="alert alert-info">{{ password_message }}</div>
-                                {% endif %}
-                                <!-- Change Password Form -->
-                                <form method="POST" action="{{ url_for('change_password') }}">
-                                    <div class="form-group mb-3">
-                                        <label for="currentPassword" class="form-label">Current Password</label>
-                                        <input type="password" id="currentPassword" name="current_password" class="form-control" placeholder="Enter current password" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="newPassword" class="form-label">New Password</label>
-                                        <input type="password" id="newPassword" name="new_password" class="form-control" placeholder="Enter new password" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
-                                        <input type="password" id="confirmNewPassword" name="confirm_new_password" class="form-control" placeholder="Confirm new password" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-outline-secondary">Change Password</button>
-                                </form>
-                            </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col">
+                            <h4>Security</h4>
+                            <!-- Display Password Change Messages -->
+                            {% if password_message %}
+                            <div class="alert alert-info">{{ password_message }}</div>
+                            {% endif %}
+                            <!-- Change Password Form -->
+                            <form method="POST" action="{{ url_for('change_password') }}">
+                                <div class="form-group mb-3">
+                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <input type="password" id="currentPassword" name="current_password"
+                                        class="form-control" placeholder="Enter current password" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <input type="password" id="newPassword" name="new_password" class="form-control"
+                                        placeholder="Enter new password" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                    <input type="password" id="confirmNewPassword" name="confirm_new_password"
+                                        class="form-control" placeholder="Confirm new password" required>
+                                </div>
+                                <button type="submit" class="btn btn-outline-secondary">Change Password</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -125,34 +115,18 @@
         </div>
     </div>
 </div>
-
+</div>
 <script>
-    function showContent(tabName) {
-        // Hide all tab contents
-        const contents = document.querySelectorAll('.tab-content');
-        contents.forEach(content => content.style.display = 'none');
-
-        // Show the selected tab content
-        document.getElementById(tabName).style.display = 'block';
-
-        // Update the active tab style
-        const tabs = document.querySelectorAll('.list-group-item');
-        tabs.forEach(tab => tab.classList.remove('active'));
-
-        // Set the clicked tab as active
-        const activeTab = Array.from(tabs).find(tab => tab.innerText.toLowerCase() === tabName);
-        if (activeTab) activeTab.classList.add('active');
-    }
-
-    // Initialize by showing the overview tab or settings if there is a message
-    document.addEventListener('DOMContentLoaded', function () {
-        const hasPasswordMessage = {{ 'true' if password_message else 'false' }};
-        if (hasPasswordMessage) {
-            showContent('settings');
-        } else {
-            showContent('overview');
-        }
+    $(document).ready(function () {
+        $('#search').on('input', function () {
+            var query = $(this).val();
+            $.get('/search', { query: query }, function (data) {
+                $('#results').empty();
+                data.forEach(function (d) {
+                    $('#results').append('<li>' + d + '</li>');
+                });
+            });
+        });
     });
 </script>
-
 {% endblock %}

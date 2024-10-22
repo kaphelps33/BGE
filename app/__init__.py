@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -399,21 +399,40 @@ def change_password():
     )
 
 
+class MedicationData(db.Model):
+    __tablename__ = "medicationData"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    drug_name = db.Column(db.String(100), nullable=False)
+    medical_condition = db.Column(db.String(100), nullable=False)
+    medical_condition_description = db.Column(db.Text)
+    activity = db.Column(db.String(100))
+    rx_otc = db.Column(db.String(50))
+    pregnancy_category = db.Column(db.String(50))
+    csa = db.Column(db.String(50))
+    alcohol = db.Column(db.String(50))
+    rating = db.Column(db.Float)  # Rating should be a float
+    no_of_reviews = db.Column(db.Integer)  # No. of reviews should be an integer
+    medical_condition_url = db.Column(db.String(200))
+    drug_link = db.Column(db.String(200))
+
+    def __repr__(self):
+        return f"<MedicationData {self.drug_name}>"
+
+
 @app.route("/search_medication", methods=["GET"])
 @login_required
 def search_medication():
     query = request.args.get("query")
     if query:
-        # Assuming Medications is your model for medications
-        search_results = Medications.query.filter(
-            Medications.name.ilike(f"%{query}%")
+        search_results = MedicationData.query.filter(
+            MedicationData.drug_name.ilike(f"%{query}%")
         ).all()
     else:
         search_results = []
 
-    return render_template(
-        "dashboard.html", medications=search_results, current_user=current_user
-    )
+    # Render a partial template to return only the search results
+    return render_template("search_results.html", medications=search_results)
 
 
 @app.route("/add_medication/<int:medication_id>", methods=["POST"])
