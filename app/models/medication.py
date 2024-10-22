@@ -30,6 +30,9 @@ class Medications(db.Model):
     medication_data = db.Column(
         db.Integer, db.ForeignKey("medicationData.id"), nullable=True
     )
+    medication_info = db.relationship(
+        "MedicationData", backref="medications", lazy=True
+    )
 
     def __repr__(self):
         """Returns a string representation of the medication instance.

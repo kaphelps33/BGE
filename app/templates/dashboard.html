@@ -26,6 +26,8 @@
             <h2>Welcome {{ current_user.username }}</h2>
             <p>{{ current_user.date_added.strftime('%B %d, %Y') }}</p>
 
+
+
             <!-- Search Bar -->
             <form>
                 <div class="input-group mb-3">
@@ -35,6 +37,38 @@
                 </div>
             </form>
             <ul id="results" class="list-group"></ul>
+
+            {% if medications %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Medication Name</th>
+                        <th>Dosage</th>
+                        <th>Price</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for med in medications %}
+                    <tr>
+                        <td>{{ med.name }}</td>
+                        <td>{{ med.dosage }}</td>
+                        <td>${{ med.price }}</td>
+                        <td>{{ med.duration }}</td>
+                        <td>
+                            <form action="{{ url_for('dash.delete_medication', id=med.id) }}" method="POST"
+                                style="display: inline;"
+                                onsubmit="return confirm('Are you sure you want to delete this medication?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>You have no medications added yet.</p>
+            {% endif %}
 
             <!-- Schedule Section -->
             <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>

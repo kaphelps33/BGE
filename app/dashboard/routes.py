@@ -17,7 +17,6 @@ from app.dashboard.forms import MedicationForm
 @dash.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    form = MedicationForm()
     """Renders the dashboard page for the logged-in user.
 
     This function fetches all medications associated with the currently logged-
@@ -28,9 +27,10 @@ def dashboard():
         Response: Renders the dashboard page with the current user and their
         medications.
     """
+
     medications = Medications.query.filter_by(user_id=current_user.id).all()
     return render_template(
-        "dashboard.html", current_user=current_user, medications=medications, form=form
+        "dashboard.html", current_user=current_user, medications=medications
     )
 
 
@@ -165,14 +165,41 @@ def add_medication(id):
         price = form.price.data
         duration = form.duration.data
 
-        print(dosage)
-        print(unit)
-        print(price)
-        print(duration)
-        print(id)
-        medication = (
-            db.session.query(MedicationData).filter(MedicationData.id == id).first()
-        )
-        print(medication.drug_name)
+        if id is not None:
+            medication = (
+                db.session.query(MedicationData).filter(MedicationData.id == id).first()
+            )
+            if medication:
+                new_medication = Medications(
+                    user_id=current_user.id,
+                    name=medication.drug_name,
+                    description=medication.medical_condition_description,
+                    dosage=f"{dosage} {unit}".strip(),
+                    price=price,
+                    duration=duration,
+                    medication_data=medication.id,
+                )
+
+                db.session.add(new_medication)
+                db.session.commit()
+
+                print(f"Medication added: {new_medication}")
+                return redirect(url_for("dash.dashboard"))
+            else:
+                print("No medication found with the given ID.")
 
     return render_template("add_medications.html", form=form)
+
+
+@dash.route("/delete_medication/<int:id>", methods=["POST"])
+def delete_medication(id):
+    medication = Medications.query.get_or_404(id)
+
+    # Ensure that the medication belongs to the current user
+    if medication.user_id != current_user.id:
+        return redirect(url_for("dash.dashboard"))
+
+    db.session.delete(medication)
+    db.session.commit()
+
+    return redirect(url_for("dash.dashboard"))
