@@ -47,6 +47,7 @@
                         <th>Dosage</th>
                         <th>Price</th>
                         <th>Duration</th>
+                        <th>Take On</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,6 +57,21 @@
                         <td>{{ med.dosage }}</td>
                         <td>${{ med.price }}</td>
                         <td>{{ med.duration }} days</td>
+                        <td>{{ med.days_of_week }}</td>
+                        <td>{{ med.medication_info.medical_condition_description }}</td>
+                        <td>
+                            {% if med.time_of_day == 'morning' %}
+                            <i class="fas fa-sun" title="Morning" style="color: orange;"></i>
+                            {% elif med.time_of_day == 'afternoon' %}
+                            <i class="fas fa-sun" title="Afternoon" style="color: gold;"></i>
+                            {% elif med.time_of_day == 'evening' %}
+                            <i class="fas fa-moon" title="Evening" style="color: darkblue;"></i>
+                            {% elif med.time_of_day == 'night' %}
+                            <i class="fas fa-star" title="Night" style="color: midnightblue;"></i>
+                            {% elif med.time_of_day == 'as needed' %}
+                            <i class="fas fa-plus-circle" title="As Needed" style="color: green;"></i>
+                            {% endif %}
+                        </td>
                         <td>
                             <form action="{{ url_for('dash.delete_medication', id=med.id) }}" method="POST"
                                 style="display: inline;"
