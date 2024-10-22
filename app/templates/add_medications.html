@@ -19,6 +19,33 @@
       </div>
     </div>
     <div class="form-group">
+      <label class="form-label">Time of Day</label>
+      <div class="form-check form-check-inline">
+        {% for subfield in form.time_of_day %}
+        <div class="form-check form-check-inline">
+          {{ subfield(class="form-check-input") }} <!-- Radio input -->
+          {{ subfield.label(class="form-check-label") }} <!-- Radio label -->
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="form-group">
+      {{ form.days_of_week.label(class="form-label") }}
+      <div class="form-check">
+        <input type="checkbox" id="selectAll" class="form-check-input" />
+        <label for="selectAll" class="form-check-label">Select All</label>
+      </div>
+      <div class="form-check form-check-inline">
+        {% for subfield in form.days_of_week %}
+        <div class="form-check form-check-inline">
+          {{ subfield(class="form-check-input") }} <!-- Checkbox input -->
+          {{ subfield.label(class="form-check-label") }} <!-- Checkbox label -->
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
       {{ form.price.label(class="form-label") }}
       {{ form.price(class="form-control") }}
     </div>
@@ -32,4 +59,12 @@
   </form>
   <a href="{{ url_for('dash.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
 </div>
+<script>
+  document.getElementById('selectAll').onclick = function () {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="days_of_week"]');
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = this.checked;
+    });
+  };
+</script>
 {% endblock %}

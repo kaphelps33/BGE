@@ -30,6 +30,12 @@ class Medications(db.Model):
     medication_data = db.Column(
         db.Integer, db.ForeignKey("medicationData.id"), nullable=True
     )
+    time_of_day = db.Column(
+        db.String(50), nullable=False, default="as needed"
+    )  # e.g., 'Morning', 'Evening', 'Night', 'As Needed'
+    days_of_week = db.Column(
+        db.String(50), nullable=False, default="all"
+    )  # e.g., 'Monday, Wednesday, Friday'
     medication_info = db.relationship(
         "MedicationData", backref="medications", lazy=True
     )

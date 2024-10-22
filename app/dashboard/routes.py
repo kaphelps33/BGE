@@ -164,6 +164,13 @@ def add_medication(id):
         unit = form.unit.data
         price = form.price.data
         duration = form.duration.data
+        time_of_day = form.time_of_day.data
+        days_of_week = form.days_of_week.data
+
+        if len(days_of_week) == 7:
+            days_of_week_str = "all"
+        else:
+            days_of_week_str = ", ".join(days_of_week) if days_of_week else "all"
 
         if id is not None:
             medication = (
@@ -177,7 +184,9 @@ def add_medication(id):
                     dosage=f"{dosage} {unit}".strip(),
                     price=price,
                     duration=duration,
-                    medication_data=medication.id,
+                    medication_data=id,
+                    time_of_day=time_of_day,
+                    days_of_week=days_of_week_str,
                 )
 
                 db.session.add(new_medication)
