@@ -1,6 +1,7 @@
 function handleAddMedicationClick(button) {
   const medicationInfo = {
     id: button.getAttribute("data-med-id"),
+    name: button.getAttribute("data-med-name"),
   };
 
   // Select the modal element
@@ -28,5 +29,33 @@ function handleAddMedicationClick(button) {
     .catch((error) => {
       // Handle the error
       console.error("Error:", error);
+    });
+}
+
+function submitAddMedication(event) {
+  // Prevent the default form submission
+  event.preventDefault();
+
+  // Create a FormData object from the form
+  const formData = new FormData(document.getElementById("medicationForm"));
+
+  // Send the data to the Flask route using Fetch API
+  fetch("/add_medication", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      }
+      throw new Error("Network response was not ok.");
+    })
+    .then((data) => {
+      console.log(data);
+      // close the modal or reset the form
+      $("#addMedicationModal").modal("hide");
+    })
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
     });
 }

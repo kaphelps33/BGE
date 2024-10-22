@@ -6,12 +6,6 @@ from wtforms.validators import DataRequired
 class MedicationForm(FlaskForm):
     """Form for adding/editing medication details."""
 
-    name = StringField(
-        "Medication Name", validators=[DataRequired()], render_kw={"readonly": True}
-    )
-    description = StringField(
-        "Description", validators=[DataRequired()], render_kw={"readonly": True}
-    )
     dosage = StringField("Dosage", validators=[DataRequired()])
     unit = SelectField(
         "Unit",

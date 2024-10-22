@@ -154,19 +154,25 @@ def search_medication():
     return render_template("search_results.html", medications=search_results)
 
 
-@dash.route("/add_medication", methods=["POST"])
+@dash.route("/add_medication", methods=["GET", "POST"])
+@dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_medication():
+def add_medication(id):
     form = MedicationForm()
-    # Get the JSON data from the request
-    data = request.get_json()
+    if form.validate_on_submit():
+        dosage = form.dosage.data
+        unit = form.unit.data
+        price = form.price.data
+        duration = form.duration.data
 
-    medication_id = data.get("id")
+        print(dosage)
+        print(unit)
+        print(price)
+        print(duration)
+        print(id)
+        medication = (
+            db.session.query(MedicationData).filter(MedicationData.id == id).first()
+        )
+        print(medication.drug_name)
 
-    medication = (
-        db.session.query(MedicationData)
-        .filter(MedicationData.id == medication_id)
-        .first()
-    )
-
-    return render_template("add_medication.html", form=form)
+    return render_template("add_medications.html", form=form)

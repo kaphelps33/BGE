@@ -16,7 +16,8 @@ class Medications(db.Model):
         medication entry.
     """
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # Foreign key to link user to a medication
     user_id = db.Column(
         db.Integer, db.ForeignKey("users.id"), nullable=True
     )  # Allow null for medications added globally
@@ -25,10 +26,10 @@ class Medications(db.Model):
     dosage = db.Column(db.String(50), nullable=False)  # Add dosage
     price = db.Column(db.Float, nullable=False)  # Add price
     duration = db.Column(db.String(50))  # Example: '7 Days'
-    user = db.relationship("Users", backref="medications", lazy=True)
-    # medication_data = db.relationship(
-    #     "MedicationData", backref="medications", lazy=True
-    # )
+    # medication can have one data piece
+    medication_data = db.Column(
+        db.Integer, db.ForeignKey("medicationData.id"), nullable=True
+    )
 
     def __repr__(self):
         """Returns a string representation of the medication instance.
