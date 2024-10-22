@@ -1,16 +1,22 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light p-2 mb-2">
   <div class="container-fluid">
     <a class="navbar-brand" href="{{ url_for('main.index') }}">BGE</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <a href="{{ url_for('main.about') }}" class="nav-link me-2">About</a>
       {% if current_user.is_authenticated %}
-      <a href="{{ url_for('dash.dashboard') }}" class="btn btn-outline-secondary me-2">Dashboard</a>
-      <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Logout</a>
+      <a href="{{ url_for('dash.dashboard') }}" class="nav-link me-2">Dashboard</a>
+      <div class="ms-auto d-flex">
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Logout</a>
+      </div>
       {% else %}
-      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+      <div class="ms-auto d-flex">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+      </div>
       {% endif %}
     </div>
   </div>
