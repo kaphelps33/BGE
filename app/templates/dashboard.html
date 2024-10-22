@@ -54,7 +54,7 @@
                         <td>{{ med.name }}</td>
                         <td>{{ med.dosage }}</td>
                         <td>${{ med.price }}</td>
-                        <td>{{ med.duration }}</td>
+                        <td>{{ med.duration }} days</td>
                         <td>
                             <form action="{{ url_for('dash.delete_medication', id=med.id) }}" method="POST"
                                 style="display: inline;"
