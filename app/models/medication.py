@@ -26,6 +26,9 @@ class Medications(db.Model):
     price = db.Column(db.Float, nullable=False)  # Add price
     duration = db.Column(db.String(50))  # Example: '7 Days'
     user = db.relationship("Users", backref="medications", lazy=True)
+    # medication_data = db.relationship(
+    #     "MedicationData", backref="medications", lazy=True
+    # )
 
     def __repr__(self):
         """Returns a string representation of the medication instance.

@@ -1,7 +1,7 @@
 """Routes for dashboard
 """
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
     login_required,
@@ -11,11 +11,13 @@ from app.dashboard import dash
 from app.extensions import db
 from app.models.medication import Medications
 from app.models.medicationData import MedicationData
+from app.dashboard.forms import MedicationForm
 
 
 @dash.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
+    form = MedicationForm()
     """Renders the dashboard page for the logged-in user.
 
     This function fetches all medications associated with the currently logged-
@@ -28,7 +30,7 @@ def dashboard():
     """
     medications = Medications.query.filter_by(user_id=current_user.id).all()
     return render_template(
-        "dashboard.html", current_user=current_user, medications=medications
+        "dashboard.html", current_user=current_user, medications=medications, form=form
     )
 
 
@@ -152,25 +154,19 @@ def search_medication():
     return render_template("search_results.html", medications=search_results)
 
 
-@dash.route("/add_medication/<int:medication_id>", methods=["POST"])
+@dash.route("/add_medication", methods=["POST"])
 @login_required
-def add_medication(medication_id):
-    # Find the medication in the database
-    medication = Medications.query.get(medication_id)
-    if not medication:
-        flash("Medication not found.", "danger")
-        return redirect(url_for("dashboard"))
+def add_medication():
+    form = MedicationForm()
+    # Get the JSON data from the request
+    data = request.get_json()
 
-    # Create a new entry in the Medications model linked to the user
-    new_medication = Medications(
-        user_id=current_user.id,
-        name=medication.name,
-        description=medication.description,
-        dosage=medication.dosage,
-        price=medication.price,
+    medication_id = data.get("id")
+
+    medication = (
+        db.session.query(MedicationData)
+        .filter(MedicationData.id == medication_id)
+        .first()
     )
-    db.session.add(new_medication)
-    db.session.commit()
 
-    flash(f"{medication.name} has been added to your dashboard.", "success")
-    return redirect(url_for("dashboard"))
+    return render_template("add_medication.html", form=form)
