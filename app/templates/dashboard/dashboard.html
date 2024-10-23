@@ -81,6 +81,7 @@
                                         <p class="mb-0">{{ med.duration }} day quantity</p>
                                         <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
                                             data-bs-target="#infoModal{{ med.id }}"></i>
+                                        {% if day == today %}
                                         <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
                                             method="POST" style="display: inline;">
                                             {% if med.status == 'taken' %}
@@ -89,6 +90,7 @@
                                             <button type="submit" class="btn btn-success ">Mark as Taken</button>
                                             {% endif %}
                                         </form>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

@@ -6,6 +6,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from datetime import datetime
 
 from app.dashboard import dash
 from app.extensions import db
@@ -83,8 +84,13 @@ def dashboard():
                     (med, med_data)
                 )  # Append the tuple
 
+    today = datetime.now().strftime("%A")
+
     return render_template(
-        "dashboard/dashboard.html", current_user=current_user, grouped_meds=grouped_meds
+        "dashboard/dashboard.html",
+        current_user=current_user,
+        grouped_meds=grouped_meds,
+        today=today,
     )
 
 
@@ -93,6 +99,7 @@ def dashboard():
 def update_medication_status(med_id):
     """Update the status of a medication to 'taken'."""
     medication = Medications.query.get(med_id)
+
     if medication:
         # Toggle status
         medication.status = "not taken" if medication.status == "taken" else "taken"
