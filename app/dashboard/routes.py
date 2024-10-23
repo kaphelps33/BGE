@@ -1,12 +1,39 @@
-"""Routes for dashboard
+"""
+Routes for managing the dashboard of the application.
+
+This module contains various Flask routes that provide functionality for
+logged-in users to manage their medications. It includes features for
+viewing, adding, updating, and deleting medications, as well as searching
+for medications and managing user settings.
+
+Key Functions:
+- dashboard: Renders the user's dashboard with a summary of their medications.
+- search_medication: Searches for medications based on the user's query.
+- add_medication: Allows users to add a new medication or edit an existing one.
+- update_medication_status: Toggles the status of a medication between 'taken' 
+    and 'not taken'.
+- delete_medication: Deletes a specified medication for the logged-in user.
+- schedule: Renders the schedule page.
+- forum: Renders the forum page.
+- settings: Handles user settings management, including updating profile information and changing passwords.
+- change_password: Processes password change requests.
+
+Each route is protected by the `login_required` decorator, ensuring that
+only authenticated users can access these functionalities.
+
+Module Dependencies:
+- Flask: Web framework for building the application.
+- Flask-Login: Extension for managing user sessions.
+- SQLAlchemy: ORM for interacting with the database.
+- datetime: Standard library for date and time manipulation.
 """
 
+from datetime import datetime
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import (
     current_user,
     login_required,
 )
-from datetime import datetime
 
 from app.dashboard import dash
 from app.extensions import db
@@ -18,15 +45,16 @@ from app.dashboard.forms import MedicationForm
 @dash.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    """Renders the dashboard page for the logged-in user.
+    """
+    Render the user's dashboard with a summary of their medications.
 
-    This function fetches all medications associated with the currently logged-
-    in user and displays them on the dashboard page. It ensures that only
-    authenticated users can access the dashboard.
+    This function retrieves all medications associated with the currently
+    logged-in user, organizes them by day of the week and time of day, and
+    renders the dashboard template.
 
     Returns:
-        Response: Renders the dashboard page with the current user and their
-        medications.
+        Rendered template for the dashboard with grouped medications and the
+        current day.
     """
     # Current signed in users id
     user_id = current_user.id
@@ -50,6 +78,7 @@ def dashboard():
         "Sunday",
     ]
 
+    # Initialize a dictionary to group medications by day and time of day
     grouped_meds = {
         day: {
             "Morning": [],
@@ -61,6 +90,7 @@ def dashboard():
         for day in days
     }
 
+    # Iterate through each medication and its associated data
     for med, med_data in medications:  # Unpack the tuple
         # Split the days of the week for each medication
         days_of_week = med.days_of_week.split(",")
@@ -108,6 +138,17 @@ def dashboard():
 @dash.route("/search_medication", methods=["GET"])
 @login_required
 def search_medication():
+    """
+    Search for medications based on the user's query.
+
+    Function retrieves medication data that matches the user's search query
+    and returns the results as a rendered partial template. If no query is
+    provided, an empty result set is returned.
+
+    Returns:
+        Rendered template for the search results containing matching
+        medications.
+    """
     query = request.args.get("query")
     if query:
         search_results = MedicationData.query.filter(
@@ -124,6 +165,27 @@ def search_medication():
 @dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
 @login_required
 def add_medication(id):
+    """
+    Add a new medication for the logged-in user.
+
+    This function handles the addition of a medication either through a POST
+    request with a submitted form or by pre-filling the form with existing
+    medication data if an ID is provided in the URL. The medication is
+    associated with the currently logged-in user.
+
+    If the form is submitted and valid, the medication details are extracted,
+    and the medication is added to the database. The function then redirects
+    the user to the dashboard. If no medication is found with the provided
+    ID, an error message is printed to the console.
+
+    Parameters:
+        id (int): The ID of the medication to edit (optional). If not provided,
+        a new medication will be added.
+
+    Returns:
+        Rendered template for the add medication form or redirects to the
+        dashboard after successful submission.
+    """
     form = MedicationForm()
     if form.validate_on_submit():
         dosage = form.dosage.data
@@ -169,27 +231,60 @@ def add_medication(id):
 @dash.route("/medication/update_status/<int:med_id>", methods=["POST"])
 @login_required
 def update_medication_status(med_id):
-    """Update the status of a medication to 'taken'."""
+    """
+    Update the status of a medication for the logged-in user.
+
+    This function toggles the status of a specified medication between 'taken'
+    and 'not taken'. It retrieves the medication based on the provided
+    medication ID and updates its status accordingly. The function commits the
+    change to the database and redirects the user back to the dashboard.
+
+    Parameters:
+        med_id (int): The ID of the medication whose status is to be updated.
+
+    Returns:
+        Redirects the user to the dashboard after updating the medication
+        status.
+    """
     medication = Medications.query.get(med_id)
 
     if medication:
         # Toggle status
         medication.status = "not taken" if medication.status == "taken" else "taken"
         db.session.commit()
+
     return redirect(url_for("dash.dashboard"))
 
 
 @dash.route("/delete_medication/<int:med_id>", methods=["POST"])
 @login_required
 def delete_medication(med_id):
+    """
+    Delete a specified medication for the logged-in user.
+
+    This function retrieves a medication based on the provided medication ID
+    and deletes it from the database. If the medication is found and deleted
+    successfully, a success message is flashed. If no medication is found
+    with the given ID, an error message is flashed instead. The user is then
+    redirected back to the dashboard.
+
+    Parameters:
+        med_id (int): The ID of the medication to be deleted.
+
+    Returns:
+        Redirects the user to the dashboard after attempting to delete the
+        medication.
+    """
+
     medication = Medications.query.get(med_id)
-    print(medication)
+
     if medication:
         db.session.delete(medication)
         db.session.commit()
         flash("Medication deleted successfully!", "success")
     else:
         flash("Medication not found!", "error")
+
     return redirect(url_for("dash.dashboard"))
 
 
