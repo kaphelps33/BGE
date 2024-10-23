@@ -14,23 +14,21 @@
 
 <body>
   {% include "navbar.html" %}
-  <div class="container">
-    {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-    <div class="alert alert-dismissible fade show" role="alert">
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-
-      {% endfor %}
+  {% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+  <div class="alert alert-dismissible fade show" role="alert">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endif %}
-    {% endwith %}
 
-    {% block content %}
-    {% endblock %}
+    {% endfor %}
   </div>
+  {% endif %}
+  {% endwith %}
+
+  {% block content %}
+  {% endblock %}
   <!-- Bootstrap 5 -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

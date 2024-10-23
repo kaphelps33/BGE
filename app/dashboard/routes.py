@@ -1,7 +1,7 @@
 """Routes for dashboard
 """
 
-from flask import flash, redirect, render_template, request, url_for, jsonify
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import (
     current_user,
     login_required,
@@ -28,10 +28,76 @@ def dashboard():
         medications.
     """
 
+    # Current signed in users id
+    user_id = current_user.id
+
+    # Query all medications that exist with the current users id
     medications = Medications.query.filter_by(user_id=current_user.id).all()
-    return render_template(
-        "dashboard.html", current_user=current_user, medications=medications
+
+    medications = (
+        db.session.query(Medications, MedicationData)
+        .join(MedicationData)
+        .filter(Medications.user_id == user_id)
+        .all()
     )
+
+    # Group medications by day of the week and time of day
+    days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+
+    grouped_meds = {
+        day: {
+            "Morning": [],
+            "Afternoon": [],
+            "Evening": [],
+            "Night": [],
+            "As Needed": [],
+        }
+        for day in days
+    }
+
+    for med, med_data in medications:  # Unpack the tuple
+        for day in med.days_of_week.split(","):
+            day_capitalized = day.strip().capitalize()
+            time_of_day_capitalized = (
+                med.time_of_day.capitalize() if med.time_of_day else "As Needed"
+            )
+
+            if day_capitalized == "All":
+                for day_key in grouped_meds.keys():
+                    grouped_meds[day_key][time_of_day_capitalized].append(
+                        (med, med_data)
+                    )  # Append the tuple
+            elif (
+                day_capitalized in grouped_meds
+                and time_of_day_capitalized in grouped_meds[day_capitalized]
+            ):
+                grouped_meds[day_capitalized][time_of_day_capitalized].append(
+                    (med, med_data)
+                )  # Append the tuple
+
+    return render_template(
+        "dashboard/dashboard.html", current_user=current_user, grouped_meds=grouped_meds
+    )
+
+
+@dash.route("/schedule")
+@login_required
+def schedule():
+    return render_template("dashboard/schedule.html")
+
+
+@dash.route("/forum")
+@login_required
+def forum():
+    return render_template("dashboard/forum.html")
 
 
 @dash.route("/settings", methods=["GET", "POST"])
@@ -63,18 +129,18 @@ def settings():
             # Verify current password
             if not current_user.verify_password(current_password):
                 flash("Current password is incorrect.", "danger")
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("dash.dashboard"))
 
             # Check if new passwords match
             if new_password != confirm_new_password:
                 flash("New passwords do not match.", "danger")
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("dash.dashboard"))
 
             # Update password
             current_user.password = new_password
             db.session.commit()
             flash("Your password has been updated successfully.", "success")
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("dash.dashboard"))
 
         # Otherwise, handle profile information update
         current_user.first_name = request.form.get("first_name")
@@ -84,9 +150,9 @@ def settings():
         # Save changes to the database
         db.session.commit()
         flash("Account details updated successfully.", "success")
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("dash.dashboard"))
 
-    return render_template("settings.html", current_user=current_user)
+    return render_template("dashboard/settings.html", current_user=current_user)
 
 
 @dash.route("/change_password", methods=["POST"])
@@ -151,7 +217,7 @@ def search_medication():
         search_results = []
 
     # Render a partial template to return only the search results
-    return render_template("search_results.html", medications=search_results)
+    return render_template("dashboard/search_results.html", medications=search_results)
 
 
 @dash.route("/add_medication", methods=["GET", "POST"])
@@ -197,7 +263,7 @@ def add_medication(id):
             else:
                 print("No medication found with the given ID.")
 
-    return render_template("add_medications.html", form=form)
+    return render_template("dashboard/add_medications.html", form=form)
 
 
 @dash.route("/delete_medication/<int:id>", methods=["POST"])
