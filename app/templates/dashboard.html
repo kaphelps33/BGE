@@ -207,6 +207,7 @@
                             const dayCell = document.createElement('div');
                             dayCell.textContent = day;
                             dayCell.classList.add('calendar-day');
+                            dayCell.dataset.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toISOString();
                             if (day === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear()) {
                                 dayCell.classList.add('today');
                             }
@@ -230,8 +231,32 @@
                     });
 
                     renderCalendar();
+
+                    // Function to add medication events to calendar
+                    function addMedicationToCalendar(medicationName, daysOfWeek) {
+                        const dayCells = calendarGrid.querySelectorAll('.calendar-day');
+                        dayCells.forEach(dayCell => {
+                            const date = new Date(dayCell.dataset.date);
+                            const dayOfWeek = date.getDay();
+                            if (daysOfWeek.includes(dayOfWeek)) {
+                                const eventDiv = document.createElement('div');
+                                eventDiv.classList.add('calendar-event');
+                                eventDiv.textContent = medicationName;
+                                eventDiv.style.backgroundColor = '#ffc107';
+                                eventDiv.style.color = '#fff';
+                                eventDiv.style.padding = '2px 5px';
+                                eventDiv.style.borderRadius = '4px';
+                                eventDiv.style.marginTop = '5px';
+                                dayCell.appendChild(eventDiv);
+                            }
+                        });
+                    }
+
+                    // Example usage - This should be triggered when a medication is added
+                    addMedicationToCalendar('Advil', [1, 3, 5]); // Example: Advil to be taken on Monday, Wednesday, and Friday
                 });
             </script>
+
 
 
             <!-- Forum Section -->
