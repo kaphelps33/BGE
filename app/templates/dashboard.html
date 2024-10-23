@@ -88,10 +88,334 @@
             {% endif %}
 
             <!-- Schedule Section -->
-            <div id="schedule" class="tab-content" style="display: none;">Schedule Content</div>
+            <div id="schedule" class="tab-content" style="display: none;">
+                <h3 class="text-primary">Your Schedule</h3>
+                <div class="calendar-container card p-3">
+                    <!-- Calendar Controls -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-outline-secondary" id="prevMonthBtn">Previous</button>
+                        <h4 id="calendarMonthYear" class="text-center"></h4>
+                        <button class="btn btn-outline-secondary" id="nextMonthBtn">Next</button>
+                    </div>
+                    <!-- Calendar Grid -->
+                    <div class="calendar-grid" id="calendarGrid">
+                        <div class="calendar-day-name">Sun</div>
+                        <div class="calendar-day-name">Mon</div>
+                        <div class="calendar-day-name">Tue</div>
+                        <div class="calendar-day-name">Wed</div>
+                        <div class="calendar-day-name">Thu</div>
+                        <div class="calendar-day-name">Fri</div>
+                        <div class="calendar-day-name">Sat</div>
+                        <!-- Dynamic calendar days will be appended here -->
+                    </div>
+                </div>
+                <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="eventModalLabel">Add Event</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="eventForm">
+                                    <div class="mb-3">
+                                        <label for="eventName" class="form-label">Event Name</label>
+                                        <input type="text" class="form-control" id="eventName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="eventDate" class="form-label">Event Date</label>
+                                        <input type="date" class="form-control" id="eventDate" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="eventTime" class="form-label">Event Time</label>
+                                        <input type="time" class="form-control" id="eventTime" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Event</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .calendar-container {
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                .calendar-grid {
+                    display: grid;
+                    grid-template-columns: repeat(7, 1fr);
+                    gap: 10px;
+                }
+                .calendar-day-name {
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .calendar-day {
+                    padding: 10px;
+                    text-align: center;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                }
+                .calendar-day:hover {
+                    background-color: #f0f0f0;
+                }
+                .calendar-day.today {
+                    background-color: #007bff;
+                    color: white;
+                }
+                .calendar-day.event {
+                    position: relative;
+                    background-color: #ffc107;
+                    color: #fff;
+                }
+                .calendar-day.event::after {
+                    content: "";
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background-color: #dc3545;
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const calendarGrid = document.getElementById('calendarGrid');
+                    const monthYearLabel = document.getElementById('calendarMonthYear');
+                    const prevMonthBtn = document.getElementById('prevMonthBtn');
+                    const nextMonthBtn = document.getElementById('nextMonthBtn');
+                    let currentDate = new Date();
+
+                    function renderCalendar() {
+                        calendarGrid.innerHTML = '';
+                        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+                        const lastDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+
+                        monthYearLabel.textContent = currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+
+                        for (let i = 0; i < firstDay; i++) {
+                            const emptyCell = document.createElement('div');
+                            calendarGrid.appendChild(emptyCell);
+                        }
+
+                        for (let day = 1; day <= lastDate; day++) {
+                            const dayCell = document.createElement('div');
+                            dayCell.textContent = day;
+                            dayCell.classList.add('calendar-day');
+                            if (day === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear()) {
+                                dayCell.classList.add('today');
+                            }
+                            dayCell.addEventListener('click', function() {
+                                const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                                document.getElementById('eventDate').value = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                                eventModal.show();
+                            });
+                            calendarGrid.appendChild(dayCell);
+                        }
+                    }
+
+                    prevMonthBtn.addEventListener('click', function() {
+                        currentDate.setMonth(currentDate.getMonth() - 1);
+                        renderCalendar();
+                    });
+
+                    nextMonthBtn.addEventListener('click', function() {
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                        renderCalendar();
+                    });
+
+                    renderCalendar();
+                });
+            </script>
+
 
             <!-- Forum Section -->
-            <div id="forum" class="tab-content" style="display: none;">Forum Content</div>
+            <div id="forum" class="tab-content" style="display: none;">
+                <h3 class="text-primary">Community Forum</h3>
+                <div class="forum-container card p-3">
+                    <!-- Search Bar -->
+                    <div class="input-group mb-3">
+                        <input type="text" id="forumSearch" class="form-control" placeholder="Ask a question..." aria-label="Ask a question">
+                        <button class="btn btn-outline-secondary" id="forumSearchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <!-- Forum Posts -->
+                    <div class="forum-posts" id="forumPosts">
+                        <!-- Example Post -->
+                        <div class="forum-post mb-4">
+                            <div class="post-header d-flex justify-content-between align-items-center">
+                                <div class="post-author">
+                                    <i class="fas fa-user-circle"></i> Olusola Bola <span class="text-muted">Active 50 min ago</span>
+                                </div>
+                                <div class="post-time text-muted">1 week ago</div>
+                            </div>
+                            <div class="post-content mt-2">
+                                <p>I took 3 doses of amphetamine and I can't sleep anymore, anyone have similar issues?</p>
+                            </div>
+                            <!-- Replies -->
+                            <div class="post-replies mt-3">
+                                <div class="reply d-flex align-items-start">
+                                    <i class="fas fa-user"></i>
+                                    <div class="reply-content ms-2">
+                                        <p class="mb-1"><strong>user1148331</strong> <span class="text-muted">28 min ago</span></p>
+                                        <p>Hi Olusola, I had gone through this before, make sure you take 1 per day and get some sleep.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User's Recent Reply -->
+                        <div class="forum-post mb-4">
+                            <div class="post-header d-flex justify-content-between align-items-center">
+                                <div class="post-author">
+                                    <i class="fas fa-user-circle"></i> Me
+                                </div>
+                                <div class="post-time text-muted">28 min ago</div>
+                            </div>
+                            <div class="post-content mt-2">
+                                <p>THANKS! I'll review this and then get back to you ASAP!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Reply Input -->
+                    <div class="reply-input mt-4">
+                        <div class="input-group">
+                            <textarea class="form-control" placeholder="Start typing here..." id="newReplyInput"></textarea>
+                            <button class="btn btn-primary" id="sendReplyBtn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        <small class="text-muted d-block mt-2">Caution! Do not put any private information in public chat forums, including but not limited to your name, age, and address.</small>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .forum-container {
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                .forum-post {
+                    border-bottom: 1px solid #e9ecef;
+                    padding-bottom: 15px;
+                }
+                .forum-post:last-child {
+                    border-bottom: none;
+                }
+                .post-header {
+                    font-size: 0.9rem;
+                    color: #6c757d;
+                }
+                .post-author {
+                    font-weight: bold;
+                }
+                .post-replies {
+                    margin-top: 10px;
+                }
+                .reply {
+                    margin-top: 10px;
+                }
+                .reply-content {
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 5px;
+                }
+                .reply-input textarea {
+                    resize: none;
+                }
+                .forum-post .post-content p {
+                    color: #dc3545;
+                }
+            </style>
+
+            <script>
+                document.getElementById('sendReplyBtn').addEventListener('click', function() {
+                    const newReply = document.getElementById('newReplyInput').value;
+                    if (newReply.trim() !== '') {
+                        const forumPosts = document.getElementById('forumPosts');
+                        const newPost = document.createElement('div');
+                        newPost.classList.add('forum-post', 'mb-4');
+                        newPost.innerHTML = `
+                <div class="post-header d-flex justify-content-between align-items-center">
+                    <div class="post-author">
+                        <i class="fas fa-user-circle"></i> Me
+                    </div>
+                    <div class="post-time text-muted">Just now</div>
+                </div>
+                <div class="post-content mt-2">
+                    <p>${newReply}</p>
+                </div>
+            `;
+                        forumPosts.appendChild(newPost);
+                        document.getElementById('newReplyInput').value = '';
+                    }
+                });
+            </script>
+
+
+            <style>
+                .forum-container {
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                .forum-post {
+                    border-bottom: 1px solid #e9ecef;
+                    padding-bottom: 15px;
+                }
+                .forum-post:last-child {
+                    border-bottom: none;
+                }
+                .post-header {
+                    font-size: 0.9rem;
+                    color: #6c757d;
+                }
+                .post-author {
+                    font-weight: bold;
+                }
+                .post-replies {
+                    margin-top: 10px;
+                }
+                .reply {
+                    margin-top: 10px;
+                }
+                .reply-content {
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 5px;
+                }
+                .reply-input textarea {
+                    resize: none;
+                }
+            </style>
+
+            <script>
+                document.getElementById('sendReplyBtn').addEventListener('click', function() {
+                    const newReply = document.getElementById('newReplyInput').value;
+                    if (newReply.trim() !== '') {
+                        const forumPosts = document.getElementById('forumPosts');
+                        const newPost = document.createElement('div');
+                        newPost.classList.add('forum-post', 'mb-4');
+                        newPost.innerHTML = `
+                <div class="post-header d-flex justify-content-between align-items-center">
+                    <div class="post-author">
+                        <i class="fas fa-user-circle"></i> Me
+                    </div>
+                    <div class="post-time text-muted">Just now</div>
+                </div>
+                <div class="post-content mt-2">
+                    <p>${newReply}</p>
+                </div>
+            `;
+                        forumPosts.appendChild(newPost);
+                        document.getElementById('newReplyInput').value = '';
+                    }
+                });
+            </script>
+
 
             <!-- Settings Section -->
             <div id="settings" class="tab-content" style="display: none;">
