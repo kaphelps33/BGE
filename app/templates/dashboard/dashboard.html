@@ -139,6 +139,13 @@
                                                 target="_blank">{{
                                                 med_data.drug_link }}</a></p>
                                         <!-- Medication Data -->
+                                        <!-- Delete Button -->
+                                        <form method="POST"
+                                            action="{{ url_for('dash.delete_medication', med_id=med.id) }}">
+                                            <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this medication?');">Delete
+                                                {{ med.name }}</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
