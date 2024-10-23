@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="d-lg-block col-lg-3 col-md-4 bg-white">
+            <div class="d-flex flex-column h-100">
+                <div class="position-sticky">
+                    <div class="list-group list-group-flush mx-3 mt-4">
+                        <a href="{{ url_for('dash.dashboard') }}"
+                            class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+                            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+                        </a>
+                        <a href="{{ url_for('dash.schedule') }}"
+                            class="list-group-item list-group-item-action py-2 ripple">
+                            <i class="fas fa-chart-area fa-fw me-3"></i><span>Schedule</span>
+                        </a>
+                        <a href="{{ url_for('dash.forum') }}"
+                            class="list-group-item list-group-item-action py-2 ripple">
+                            <i class="fas fa-lock fa-fw me-3"></i><span>Forum</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Spacer -->
+                <div class="mt-auto">
+                    <a href="{{ url_for('dash.settings') }}" class="list-group-item list-group-item-action py-2 ripple">
+                        <i class="fas fa-cog fa-fw me-3"></i><span>Settings</span>
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action py-2 ripple">
+                        <i class="fas fa-sign-out-alt fa-fw me-3"></i><span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        <!-- Sidebar -->
+        <!-- Main content -->
+        <main class="col-lg-9 col-md-8 mr-3" style="margin-top: 58px;">
+            <div class="container pt-4">
+                <!-- Header with User and Date -->
+                <h2>Welcome {{ current_user.username }}</h2>
+                <p>{{ current_user.date_added.strftime('%B %d, %Y') }}</p>
+                <!-- Header with User and Date -->
+            </div>
+            <!-- Search Bar -->
+            <form>
+                <div class="input-group mb-3">
+                    <input type="text" name="query" class="form-control" placeholder="Search medication"
+                        aria-label="Search medication" hx-get="{{ url_for('dash.search_medication') }}"
+                        hx-target="#results" hx-trigger="keyup changed delay:50ms">
+                </div>
+            </form>
+            <ul id="results" class="list-group"></ul>
+            <!-- Search Bar -->
+            <!-- Where medications are listed -->
+            <div class="container">
+                {% for day, times in grouped_meds.items() %}
+                {% if times %}
+                <h2 class="day-heading">{{ day }}</h2>
+                <hr>
+                <div class="row">
+                    {% for time_of_day, meds in times.items() %}
+                    {% if meds %}
+                    <div class="col-md-12">
+                        <h4>{{ time_of_day }}</h4>
+                        {% for med, med_data in meds %}
+                        <div class="col-xl-6 col-md-12">
+                            <div class="card overflow-hidden">
+                                <div class="card-content">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <h4 class="mb-0">{{ med.name }}</h4>
+                                                <span>{{ med.dosage }} - ${{ med.price }}</span>
+                                            </div>
+                                        </div>
+                                        <p class="mb-0">{{ med.duration }} day quantity</p>
+                                        <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
+                                            data-bs-target="#infoModal{{ med.id }}"></i>
+                                        <!-- Use med.id for uniqueness -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="infoModal{{ med.id }}" tabindex="-1"
+                            aria-labelledby="infoModalLabel{{ med.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="infoModalLabel{{ med.id }}">{{ med.name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Medication Data -->
+                                        <p><strong>Prescription Status:</strong> {{ med_data.rx_otc }}</p>
+                                        <p><strong>Dosage:</strong> {{ med.dosage }}</p>
+                                        <p><strong>Price:</strong> ${{ med.price }}</p>
+                                        <p><strong>Duration:</strong> {{ med.duration }} days</p>
+                                        <p><strong>Pregnancy Category:</strong>
+                                            {% set pregnancy_categories = {
+                                            'A': 'Controlled studies show no risk.',
+                                            'B': 'No evidence of risk in humans.',
+                                            'C': 'Risk cannot be ruled out.',
+                                            'D': 'Positive evidence of risk.',
+                                            'X': 'Contraindicated in pregnancy'
+                                            } %}
+                                        <p><strong>Pregnancy Category:</strong>
+                                            {{ med_data.pregnancy_category }}
+                                            <span style="color: gray;">({{
+                                                pregnancy_categories.get(med_data.pregnancy_category, 'Unknown
+                                                category') }})</span>
+                                        </p>
+                                        </p>
+                                        <p><strong>Interactions With Alcohol:</strong>
+                                            {% if med_data.alcohol == 'X' %}
+                                            Yes
+                                            {% else %}
+                                            No
+                                            {% endif %}
+                                        </p>
+                                        <p><strong>Schedule:</strong> {{ med_data.csa }}</p>
+                                        <p><strong>Condition Description:</strong> {{ med.description }}</p>
+                                        <p><strong>More Information:</strong> <a href="{{ med_data.drug_link }}"
+                                                target="_blank">{{
+                                                med_data.drug_link }}</a></p>
+                                        <!-- Medication Data -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+            <!-- Where medications are listed -->
+        </main>
+    </div>
+</div>
+<!-- Footer -->
+<footer class="footer bg-light text-center text-lg-start p-1 mt-4">
+    <div class="container">
+        <div class="text-muted">
+            <p class="mb-0">Disclaimer: This application is for informational purposes only and is not a substitute for
+                professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other
+                qualified health provider with any questions you may have regarding a medical condition.</p>
+            <p class="mb-0">The creators of this application are not responsible for any medical outcomes resulting from
+                the use of this application.</p>
+        </div>
+    </div>
+</footer>
+<!-- Footer -->
+<!--Main layout-->
+{% endblock %}
