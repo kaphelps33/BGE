@@ -39,7 +39,7 @@ class Medications(db.Model):
     medication_info = db.relationship(
         "MedicationData", backref="medications", lazy=True
     )
-    status = db.Column(db.String, nullable=False, default='pending')
+    status = db.Column(db.String, nullable=False, default="pending")
 
     def __repr__(self):
         """Returns a string representation of the medication instance.

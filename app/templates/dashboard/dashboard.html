@@ -56,31 +56,41 @@
             <ul id="results" class="list-group"></ul>
             <!-- Search Bar -->
             <!-- Where medications are listed -->
-            <div class="container">
+            <div class="container overflow-auto" style="max-height: 40rem;">
                 {% for day, times in grouped_meds.items() %}
                 {% if times %}
-                <h2 class="day-heading">{{ day }}</h2>
+                <h2 class="mt-4">{{ day }}</h2>
                 <hr>
                 <div class="row">
                     {% for time_of_day, meds in times.items() %}
                     {% if meds %}
                     <div class="col-md-12">
-                        <h4>{{ time_of_day }}</h4>
+                        <h4 class="mt-4">{{ time_of_day }}</h4>
                         {% for med, med_data in meds %}
-                        <div class="col-xl-6 col-md-12">
-                            <div class="card overflow-hidden">
+                        <div class="col-xl-6 col-md-12 ">
+                            <div
+                                class="card overflow-hidden {% if day == today and med.status == 'taken' %}bg-success text-white{% endif %}">
                                 <div class="card-content">
                                     <div class="card-body d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
                                             <div>
-                                                <h4 class="mb-0">{{ med.name }}</h4>
+                                                <h4 class="mb-0">{{ med.name | title }}</h4>
                                                 <span>{{ med.dosage }} - ${{ med.price }}</span>
                                             </div>
                                         </div>
                                         <p class="mb-0">{{ med.duration }} day quantity</p>
                                         <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
                                             data-bs-target="#infoModal{{ med.id }}"></i>
-                                        <!-- Use med.id for uniqueness -->
+                                        {% if day == today %}
+                                        <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
+                                            method="POST" style="display: inline;">
+                                            {% if med.status == 'taken' %}
+                                            <button type="submit" class="btn btn-primary ">Mark as Not Taken</button>
+                                            {% else %}
+                                            <button type="submit" class="btn btn-success ">Mark as Taken</button>
+                                            {% endif %}
+                                        </form>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -109,12 +119,10 @@
                                             'D': 'Positive evidence of risk.',
                                             'X': 'Contraindicated in pregnancy'
                                             } %}
-                                        <p><strong>Pregnancy Category:</strong>
                                             {{ med_data.pregnancy_category }}
                                             <span style="color: gray;">({{
                                                 pregnancy_categories.get(med_data.pregnancy_category, 'Unknown
                                                 category') }})</span>
-                                        </p>
                                         </p>
                                         <p><strong>Interactions With Alcohol:</strong>
                                             {% if med_data.alcohol == 'X' %}
@@ -126,9 +134,15 @@
                                         <p><strong>Schedule:</strong> {{ med_data.csa }}</p>
                                         <p><strong>Condition Description:</strong> {{ med.description }}</p>
                                         <p><strong>More Information:</strong> <a href="{{ med_data.drug_link }}"
-                                                target="_blank">{{
-                                                med_data.drug_link }}</a></p>
+                                                target="_blank">{{ med_data.drug_link }}</a></p>
                                         <!-- Medication Data -->
+                                        <!-- Delete Button -->
+                                        <form method="POST"
+                                            action="{{ url_for('dash.delete_medication', med_id=med.id) }}">
+                                            <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this medication?');">Delete
+                                                {{ med.name }}</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

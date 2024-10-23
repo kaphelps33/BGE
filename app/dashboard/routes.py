@@ -6,6 +6,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from datetime import datetime
 
 from app.dashboard import dash
 from app.extensions import db
@@ -27,13 +28,10 @@ def dashboard():
         Response: Renders the dashboard page with the current user and their
         medications.
     """
-
     # Current signed in users id
     user_id = current_user.id
 
     # Query all medications that exist with the current users id
-    medications = Medications.query.filter_by(user_id=current_user.id).all()
-
     medications = (
         db.session.query(Medications, MedicationData)
         .join(MedicationData)
@@ -64,28 +62,135 @@ def dashboard():
     }
 
     for med, med_data in medications:  # Unpack the tuple
-        for day in med.days_of_week.split(","):
-            day_capitalized = day.strip().capitalize()
-            time_of_day_capitalized = (
-                med.time_of_day.capitalize() if med.time_of_day else "As Needed"
-            )
+        # Split the days of the week for each medication
+        days_of_week = med.days_of_week.split(",")
 
+        # Loop through each day in days_of_week
+        for day in days_of_week:
+            day_capitalized = day.strip().capitalize()
+
+            # Handle "All" days by assigning to all specific days
             if day_capitalized == "All":
-                for day_key in grouped_meds.keys():
+                for day_key in grouped_meds.keys():  # Loop through all days
+                    # Ensure the time of day exists in the dictionary
+                    time_of_day_capitalized = (
+                        med.time_of_day.replace("_", " ").capitalize()
+                        if med.time_of_day
+                        else "As Needed"
+                    )
+                    if time_of_day_capitalized not in grouped_meds[day_key]:
+                        grouped_meds[day_key][time_of_day_capitalized] = []
                     grouped_meds[day_key][time_of_day_capitalized].append(
                         (med, med_data)
-                    )  # Append the tuple
-            elif (
-                day_capitalized in grouped_meds
-                and time_of_day_capitalized in grouped_meds[day_capitalized]
-            ):
-                grouped_meds[day_capitalized][time_of_day_capitalized].append(
-                    (med, med_data)
-                )  # Append the tuple
+                    )
+            else:
+                # If it's a specific day, handle it normally
+                time_of_day_capitalized = (
+                    med.time_of_day.capitalize() if med.time_of_day else "As Needed"
+                )
+                if day_capitalized in grouped_meds:
+                    if time_of_day_capitalized not in grouped_meds[day_capitalized]:
+                        grouped_meds[day_capitalized][time_of_day_capitalized] = []
+                    grouped_meds[day_capitalized][time_of_day_capitalized].append(
+                        (med, med_data)
+                    )
+
+    today = datetime.now().strftime("%A")
 
     return render_template(
-        "dashboard/dashboard.html", current_user=current_user, grouped_meds=grouped_meds
+        "dashboard/dashboard.html",
+        current_user=current_user,
+        grouped_meds=grouped_meds,
+        today=today,
     )
+
+
+@dash.route("/search_medication", methods=["GET"])
+@login_required
+def search_medication():
+    query = request.args.get("query")
+    if query:
+        search_results = MedicationData.query.filter(
+            MedicationData.drug_name.ilike(f"%{query}%")
+        ).all()
+    else:
+        search_results = []
+
+    # Render a partial template to return only the search results
+    return render_template("dashboard/search_results.html", medications=search_results)
+
+
+@dash.route("/add_medication", methods=["GET", "POST"])
+@dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
+@login_required
+def add_medication(id):
+    form = MedicationForm()
+    if form.validate_on_submit():
+        dosage = form.dosage.data
+        unit = form.unit.data
+        price = form.price.data
+        duration = form.duration.data
+        time_of_day = form.time_of_day.data
+        days_of_week = form.days_of_week.data
+
+        if len(days_of_week) == 7:
+            days_of_week_str = "all"
+        else:
+            days_of_week_str = ", ".join(days_of_week) if days_of_week else "all"
+
+        if id is not None:
+            medication = (
+                db.session.query(MedicationData).filter(MedicationData.id == id).first()
+            )
+            if medication:
+                new_medication = Medications(
+                    user_id=current_user.id,
+                    name=medication.drug_name,
+                    description=medication.medical_condition_description,
+                    dosage=f"{dosage} {unit}".strip(),
+                    price=price,
+                    duration=duration,
+                    medication_data=id,
+                    time_of_day=time_of_day,
+                    days_of_week=days_of_week_str,
+                )
+
+                db.session.add(new_medication)
+                db.session.commit()
+
+                print(f"Medication added: {new_medication}")
+                return redirect(url_for("dash.dashboard"))
+            else:
+                print("No medication found with the given ID.")
+
+    return render_template("dashboard/add_medications.html", form=form)
+
+
+@dash.route("/medication/update_status/<int:med_id>", methods=["POST"])
+@login_required
+def update_medication_status(med_id):
+    """Update the status of a medication to 'taken'."""
+    medication = Medications.query.get(med_id)
+
+    if medication:
+        # Toggle status
+        medication.status = "not taken" if medication.status == "taken" else "taken"
+        db.session.commit()
+    return redirect(url_for("dash.dashboard"))
+
+
+@dash.route("/delete_medication/<int:med_id>", methods=["POST"])
+@login_required
+def delete_medication(med_id):
+    medication = Medications.query.get(med_id)
+    print(medication)
+    if medication:
+        db.session.delete(medication)
+        db.session.commit()
+        flash("Medication deleted successfully!", "success")
+    else:
+        flash("Medication not found!", "error")
+    return redirect(url_for("dash.dashboard"))
 
 
 @dash.route("/schedule")
@@ -203,78 +308,3 @@ def change_password():
         medications=Medications.query.filter_by(user_id=current_user.id).all(),
         password_message=password_message,
     )
-
-
-@dash.route("/search_medication", methods=["GET"])
-@login_required
-def search_medication():
-    query = request.args.get("query")
-    if query:
-        search_results = MedicationData.query.filter(
-            MedicationData.drug_name.ilike(f"%{query}%")
-        ).all()
-    else:
-        search_results = []
-
-    # Render a partial template to return only the search results
-    return render_template("dashboard/search_results.html", medications=search_results)
-
-
-@dash.route("/add_medication", methods=["GET", "POST"])
-@dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
-@login_required
-def add_medication(id):
-    form = MedicationForm()
-    if form.validate_on_submit():
-        dosage = form.dosage.data
-        unit = form.unit.data
-        price = form.price.data
-        duration = form.duration.data
-        time_of_day = form.time_of_day.data
-        days_of_week = form.days_of_week.data
-
-        if len(days_of_week) == 7:
-            days_of_week_str = "all"
-        else:
-            days_of_week_str = ", ".join(days_of_week) if days_of_week else "all"
-
-        if id is not None:
-            medication = (
-                db.session.query(MedicationData).filter(MedicationData.id == id).first()
-            )
-            if medication:
-                new_medication = Medications(
-                    user_id=current_user.id,
-                    name=medication.drug_name,
-                    description=medication.medical_condition_description,
-                    dosage=f"{dosage} {unit}".strip(),
-                    price=price,
-                    duration=duration,
-                    medication_data=id,
-                    time_of_day=time_of_day,
-                    days_of_week=days_of_week_str,
-                )
-
-                db.session.add(new_medication)
-                db.session.commit()
-
-                print(f"Medication added: {new_medication}")
-                return redirect(url_for("dash.dashboard"))
-            else:
-                print("No medication found with the given ID.")
-
-    return render_template("dashboard/add_medications.html", form=form)
-
-
-@dash.route("/delete_medication/<int:id>", methods=["POST"])
-def delete_medication(id):
-    medication = Medications.query.get_or_404(id)
-
-    # Ensure that the medication belongs to the current user
-    if medication.user_id != current_user.id:
-        return redirect(url_for("dash.dashboard"))
-
-    db.session.delete(medication)
-    db.session.commit()
-
-    return redirect(url_for("dash.dashboard"))
