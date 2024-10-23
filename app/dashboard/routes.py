@@ -88,6 +88,18 @@ def dashboard():
     )
 
 
+@dash.route("/medication/update_status/<int:med_id>", methods=["POST"])
+@login_required
+def update_medication_status(med_id):
+    """Update the status of a medication to 'taken'."""
+    medication = Medications.query.get(med_id)
+    if medication:
+        # Toggle status
+        medication.status = "not taken" if medication.status == "taken" else "taken"
+        db.session.commit()
+    return redirect(url_for("dash.dashboard"))
+
+
 @dash.route("/schedule")
 @login_required
 def schedule():
