@@ -16,7 +16,7 @@
             <!-- Account Details -->
             <div class="col-md-8">
                 <h4>Account Details</h4>
-                <form method="POST" action="{{ url_for('settings') }}">
+                <form method="POST" action="{{ url_for('dash.settings') }}">
                     <div class="form-group mb-3">
                         <label for="firstName" class="form-label">First Name</label>
                         <input type="text" id="firstName" name="first_name" class="form-control" value="{{ current_user.first_name }}">
@@ -36,7 +36,7 @@
         <div class="row mt-5">
             <div class="col">
                 <h4>Security</h4>
-                <form method="POST" action="{{ url_for('change_password') }}">
+                <form method="POST" action="{{ url_for('dash.change_password') }}">
                     <div class="form-group mb-3">
                         <label for="currentPassword" class="form-label">Current Password</label>
                         <input type="password" id="currentPassword" name="current_password" class="form-control" placeholder="Enter current password" required>

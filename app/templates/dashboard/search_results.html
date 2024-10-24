@@ -2,10 +2,6 @@
 <li class="list-group-item">
     <a href="{{ url_for('dash.add_medication', id=med.id) }}"><strong>{{ med.drug_name }}</strong></a><br>
     {{ med.medical_condition }}<br>
-    <!-- <button class="btn btn-primary" data-med-id="{{ med.id }}" data-med-name="{{ med.drug_name }}"
-        onclick="handleAddMedicationClick(this)">
-        Add
-    </button> -->
 </li>
 {% else %}
 <li class="list-group-item">No results found.</li>
