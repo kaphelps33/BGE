@@ -59,7 +59,20 @@ def dashboard():
     # Current signed in users id
     user_id = current_user.id
 
-    # Query all medications that exist with the current users id
+    grouped_meds = get_grouped_meds(user_id=user_id)
+
+    today = datetime.now().strftime("%A")
+
+    return render_template(
+        "dashboard/dashboard.html",
+        current_user=current_user,
+        grouped_meds=grouped_meds,
+        today=today,
+    )
+
+
+def get_grouped_meds(user_id):
+    """Helper function to group medications by day of the week and time of day."""
     medications = (
         db.session.query(Medications, MedicationData)
         .join(MedicationData)
@@ -78,7 +91,6 @@ def dashboard():
         "Sunday",
     ]
 
-    # Initialize a dictionary to group medications by day and time of day
     grouped_meds = {
         day: {
             "Morning": [],
@@ -90,23 +102,15 @@ def dashboard():
         for day in days
     }
 
-    # Iterate through each medication and its associated data
-    for med, med_data in medications:  # Unpack the tuple
-        # Split the days of the week for each medication
+    for med, med_data in medications:
         days_of_week = med.days_of_week.split(",")
-
-        # Loop through each day in days_of_week
         for day in days_of_week:
             day_capitalized = day.strip().capitalize()
 
-            # Handle "All" days by assigning to all specific days
             if day_capitalized == "All":
-                for day_key in grouped_meds.keys():  # Loop through all days
-                    # Ensure the time of day exists in the dictionary
+                for day_key in grouped_meds.keys():
                     time_of_day_capitalized = (
-                        med.time_of_day.replace("_", " ").capitalize()
-                        if med.time_of_day
-                        else "As Needed"
+                        med.time_of_day.capitalize() if med.time_of_day else "As Needed"
                     )
                     if time_of_day_capitalized not in grouped_meds[day_key]:
                         grouped_meds[day_key][time_of_day_capitalized] = []
@@ -114,7 +118,6 @@ def dashboard():
                         (med, med_data)
                     )
             else:
-                # If it's a specific day, handle it normally
                 time_of_day_capitalized = (
                     med.time_of_day.capitalize() if med.time_of_day else "As Needed"
                 )
@@ -125,14 +128,7 @@ def dashboard():
                         (med, med_data)
                     )
 
-    today = datetime.now().strftime("%A")
-
-    return render_template(
-        "dashboard/dashboard.html",
-        current_user=current_user,
-        grouped_meds=grouped_meds,
-        today=today,
-    )
+    return grouped_meds
 
 
 @dash.route("/search_medication", methods=["GET"])
@@ -373,13 +369,16 @@ def change_password():
     new_password = request.form.get("new_password")
     confirm_new_password = request.form.get("confirm_new_password")
 
+    grouped_meds = get_grouped_meds(current_user.id)
+
     # Verify current password
     if not current_user.verify_password(current_password):
         password_message = "Current password was incorrect."
         return render_template(
-            "dashboard.html",
+            "dashboard/dashboard.html",
             current_user=current_user,
-            medications=Medications.query.filter_by(user_id=current_user.id).all(),
+            grouped_meds=grouped_meds,
+            today=datetime.now().strftime("%A"),
             password_message=password_message,
         )
 
@@ -387,9 +386,10 @@ def change_password():
     if new_password != confirm_new_password:
         password_message = "New passwords do not match."
         return render_template(
-            "dashboard.html",
+            "dashboard/dashboard.html",
             current_user=current_user,
-            medications=Medications.query.filter_by(user_id=current_user.id).all(),
+            grouped_meds=grouped_meds,
+            today=datetime.now().strftime("%A"),
             password_message=password_message,
         )
 
@@ -398,8 +398,9 @@ def change_password():
     db.session.commit()
     password_message = "Password successfully changed!"
     return render_template(
-        "dashboard.html",
+        "dashboard/dashboard.html",
         current_user=current_user,
-        medications=Medications.query.filter_by(user_id=current_user.id).all(),
+        grouped_meds=grouped_meds,
+        today=datetime.now().strftime("%A"),
         password_message=password_message,
     )
