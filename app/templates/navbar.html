@@ -1,7 +1,8 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light p-2 mb-2">
+<nav class="navbar navbar-expand-lg navbar-light p-2 mb-2" style="background-color: #f18f01;">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
-      <img src="images/BGE_Logo.png" alt="Logo" class="img-fluid" style="max-width: 40px; max-height: 40px;">
+      <img src="{{url_for('static', filename='BGE_Logo.png')}}" alt="Logo" class="img-fluid"
+        style="max-width: 40px; max-height: 40px;">
       <span class="ms-2">BGE</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
