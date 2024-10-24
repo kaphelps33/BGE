@@ -3,49 +3,53 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1 class="mt-5" style="text-align: center;">Welcome to Medicine Simplified.</h1>
-<img src="{{url_for('static', filename='Home_Image.png')}}" class="img-fluid rounded-start" alt="Picture of Medication">
-<br><br><br><br><br>
+<div class="container">
+    <h1 class="mt-5" style="text-align: center;">Welcome to Medicine Simplified.</h1>
+    <img src="{{url_for('static', filename='Home_Image.png')}}" class="img-fluid rounded-start"
+        alt="Picture of Medication">
+    <br><br><br><br><br>
 
-<h3>See what others had to say:</h3>
-<!-- First Quote -->
-<div class="card" style="background-color: #f4ac45;">
-    <div class="card-header">
-        BGE User
+    <h3>See what others had to say:</h3>
+    <!-- First Quote -->
+    <div class="card" style="background-color: #f4ac45;">
+        <div class="card-header">
+            BGE User
+        </div>
+        <div class="card-body" style="background-color: #ccfbfe;">
+            <blockquote class="blockquote mb-0">
+                <p>It changed my life!</p>
+                <footer class="blockquote-footer">Moronica Chandelier</footer>
+            </blockquote>
+        </div>
     </div>
-    <div class="card-body" style="background-color: #ccfbfe;">
-        <blockquote class="blockquote mb-0">
-            <p>It changed my life!</p>
-            <footer class="blockquote-footer">Moronica Chandelier</footer>
-        </blockquote>
+    <br>
+
+    <!-- Second Quote -->
+    <div class="card" style="background-color: #f4ac45;">
+        <div class="card-header">
+            BGE User
+        </div>
+        <div class="card-body" style="background-color: #ccfbfe;">
+            <blockquote class="blockquote mb-0">
+                <p>Managing my excessive medication is easy now!</p>
+                <footer class="blockquote-footer">Claig Drake</footer>
+            </blockquote>
+        </div>
+    </div>
+    <br>
+
+    <!-- Third Quote -->
+    <div class="card" style="background-color: #f4ac45;">
+        <div class="card-header">
+            Provider
+        </div>
+        <div class="card-body" style="background-color: #ccfbfe;">
+            <blockquote class="blockquote mb-0">
+                <p>Wow, I am bamboozled by the greatness of this product!</p>
+                <footer class="blockquote-footer">Ophelia, MD</footer>
+            </blockquote>
+        </div>
     </div>
 </div>
-<br>
 
-<!-- Second Quote -->
-<div class="card" style="background-color: #f4ac45;">
-    <div class="card-header">
-        BGE User
-    </div>
-    <div class="card-body" style="background-color: #ccfbfe;">
-        <blockquote class="blockquote mb-0">
-            <p>Managing my excessive medication is easy now!</p>
-            <footer class="blockquote-footer">Claig Drake</footer>
-        </blockquote>
-    </div>
-</div>
-<br>
-
-<!-- Third Quote -->
-<div class="card" style="background-color: #f4ac45;">
-    <div class="card-header">
-        Provider
-    </div>
-    <div class="card-body" style="background-color: #ccfbfe;">
-        <blockquote class="blockquote mb-0">
-            <p>Wow, I am bamboozled by the greatness of this product!</p>
-            <footer class="blockquote-footer">Ophelia, MD</footer>
-        </blockquote>
-    </div>
-</div>
 {% endblock %}
