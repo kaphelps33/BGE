@@ -1,0 +1,30 @@
+<!-- Sidebar -->
+<nav id="sidebarMenu" class="d-lg-block col-lg-3 col-md-4 bg-white">
+  <div class="d-flex flex-column h-100">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-3 mt-4">
+        <a href="{{ url_for('dash.dashboard') }}" class="list-group-item list-group-item-action py-2 ripple"
+          aria-current="true">
+          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('dash.schedule') }}" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-chart-area fa-fw me-3"></i><span>Schedule</span>
+        </a>
+        <a href="{{ url_for('dash.forum') }}" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-lock fa-fw me-3"></i><span>Forum</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="mt-auto">
+      <a href="{{ url_for('dash.settings') }}" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="fas fa-cog fa-fw me-3"></i><span>Settings</span>
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="fas fa-sign-out-alt fa-fw me-3"></i><span>Logout</span>
+      </a>
+    </div>
+  </div>
+</nav>
+<!-- Sidebar -->
