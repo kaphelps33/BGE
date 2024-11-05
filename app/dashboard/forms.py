@@ -1,3 +1,6 @@
+"""All of the forms required for dashboard functionality
+"""
+
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -13,9 +16,11 @@ from wtforms.validators import DataRequired
 
 
 class MedicationForm(FlaskForm):
-    """Form for adding/editing medication details."""
+    """Form for adding medications to the users profile/dashboard."""
 
+    # Medication dosage field
     dosage = StringField("Dosage", validators=[DataRequired()])
+    # Users can select different measurements of medication
     unit = SelectField(
         "Unit",
         choices=[
@@ -26,8 +31,9 @@ class MedicationForm(FlaskForm):
             ("units", "Units"),
         ],
         validators=[DataRequired()],
-        default="mg",  # Set a default unit
+        default="mg",
     )
+    # The time at which a user takes their medication
     time_of_day = RadioField(
         "Time of Day",
         choices=[
@@ -40,6 +46,8 @@ class MedicationForm(FlaskForm):
         default="as_needed",
         validators=[DataRequired()],
     )
+    # The days when a user takes their medications
+    # TODO: MAKE THIS REQUIRED WITH VALIDATORS
     days_of_week = SelectMultipleField(
         "Days of the Week",
         choices=[
@@ -52,8 +60,13 @@ class MedicationForm(FlaskForm):
             ("sunday", "Sunday"),
         ],
         widget=ListWidget(prefix_label=False),
-        option_widget=CheckboxInput(),  # This ensures checkboxes are rendered
+        option_widget=CheckboxInput(),
     )
+    # Medication price
     price = DecimalField("Price", validators=[DataRequired()])
+    # How long a user takes this medications
+    # TODO: MAKE IT SO THIS MUST BE ABOVE 0 DAYS AND CAN'T BE SOME CRAZY VALUE
+    # LIKE 1,000,000 DAYS
     duration = IntegerField("Duration", validators=[DataRequired()])
+    # Submit button
     submit = SubmitField("Add Medication", validators=[DataRequired()])
