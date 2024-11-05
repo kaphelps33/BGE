@@ -1,3 +1,4 @@
+<!-- Settings.html -->
 {% extends "base.html" %}
 
 {% block title %}{{ current_user.name }} Settings{% endblock %}
@@ -9,8 +10,10 @@
         {% include "dashboard/sidebar.html" %}
         <!-- Sidebar -->
         <!-- Main content -->
+        <!-- Personal Information Section -->
         <main class="col-lg-9 col-md-8 mr-3" style="margin-top: 58px;">
             <div class="row align-items-center">
+                <!-- TODO: FIX PROFILE IMAGE UPLOAD AND DISPLAY -->
                 <!-- Profile Image -->
                 <!-- <div class="col-md-4 text-center">
                     <div class="profile-img">
@@ -28,49 +31,69 @@
                 <div class="col-md-8">
                     <h4>Account Details</h4>
                     <form method="POST" action="{{ url_for('dash.settings') }}">
+                        <!-- First Name -->
                         <div class="form-group mb-3">
                             <label for="firstName" class="form-label">First Name</label>
                             <input type="text" id="firstName" name="first_name" class="form-control"
                                 value="{{ current_user.first_name }}">
                         </div>
+                        <!-- First Name -->
+                        <!-- Last Name -->
                         <div class="form-group mb-3">
                             <label for="lastName" class="form-label">Last Name</label>
                             <input type="text" id="lastName" name="last_name" class="form-control"
                                 value="{{ current_user.last_name }}">
                         </div>
+                        <!-- Last Name -->
+                        <!-- Email -->
                         <div class="form-group mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" id="email" name="email" class="form-control"
                                 value="{{ current_user.email }}">
                         </div>
+                        <!-- Email -->
+                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
+                        <!-- Submit Button -->
                     </form>
                 </div>
             </div>
+            <!-- Personal Information Section -->
+            <!-- Security Section -->
             <div class="row mt-5">
                 <div class="col">
                     <h4>Security</h4>
                     <form method="POST" action="{{ url_for('dash.change_password') }}">
+                        <!-- Current Password  -->
                         <div class="form-group mb-3">
                             <label for="currentPassword" class="form-label">Current Password</label>
                             <input type="password" id="currentPassword" name="current_password" class="form-control"
                                 placeholder="Enter current password" required>
                         </div>
+                        <!-- Current Password  -->
+                        <!-- New Password  -->
                         <div class="form-group mb-3">
                             <label for="newPassword" class="form-label">New Password</label>
                             <input type="password" id="newPassword" name="new_password" class="form-control"
                                 placeholder="Enter new password" required>
                         </div>
+                        <!-- New Password  -->
+                        <!-- Confirm New Password  -->
                         <div class="form-group mb-3">
                             <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
                             <input type="password" id="confirmNewPassword" name="confirm_new_password"
                                 class="form-control" placeholder="Confirm new password" required>
                         </div>
+                        <!-- Confirm New Password  -->
+                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-outline-secondary">Change Password</button>
+                        <!-- Submit Button -->
                     </form>
                 </div>
             </div>
+            <!-- Security Section -->
         </main>
+        <!-- Main Section -->
     </div>
 </div>
 <!-- Footer -->
