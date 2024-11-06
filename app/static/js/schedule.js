@@ -12,18 +12,22 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("/get_medications")
     .then((response) => response.json())
     .then((medsData) => {
-      console.log("Fetched data:", medsData);
-
       medsData.forEach((med) => {
+        console.log(med);
         let startDate = new Date(med.start_date);
         let endDate = new Date(med.end_date);
+
+        startDate.setDate(startDate.getDate() + 1);
+        endDate.setDate(endDate.getDate() + 1);
+
+        console.log(startDate);
 
         // Loop through the dates from start to end
         let currentDate = new Date(startDate);
         while (currentDate <= endDate) {
           // Add medication to the calendar on the corresponding day
           calendar.addEvent({
-            title: med.name + " - " + med.dosage,
+            title: "Taking " + med.name + " - " + med.dosage,
             start: currentDate.toISOString(),
             end: currentDate.toISOString(),
             allDay: true,

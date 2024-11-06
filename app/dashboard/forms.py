@@ -62,8 +62,10 @@ class MedicationForm(FlaskForm):
         widget=ListWidget(prefix_label=False),
         option_widget=CheckboxInput(),
     )
+
     # Medication price
     price = DecimalField("Price", validators=[DataRequired()])
+
     # How long a user takes this medications
     # TODO: MAKE IT SO THIS MUST BE ABOVE 0 DAYS AND CAN'T BE SOME CRAZY VALUE
     # LIKE 1,000,000 DAYS
