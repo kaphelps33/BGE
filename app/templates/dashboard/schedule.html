@@ -1,8 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Schedule{% endblock %}
 {% block content %}
-<div class="container">
-    <h1>Schedule Page</h1>
-    <p>This is the schedule page content.</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include "dashboard/sidebar.html" %}
+        <!-- Sidebar -->
+        <main class="col-lg-9 col-md-8 mr-3" style="margin-top: 58px;">
+            <h1>Schedule Page</h1>
+            <div id="calendar">
+
+            </div>
+        </main>
+
+    </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',  // Start with a month view
+            events: "/get_medications",   // Fetch events from this endpoint
+        });
+        calendar.render();
+    });
+</script>
 {% endblock %}
