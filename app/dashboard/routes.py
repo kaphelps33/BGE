@@ -15,7 +15,8 @@ Key Functions:
 - delete_medication: Deletes a specified medication for the logged-in user.
 - schedule: Renders the schedule page.
 - forum: Renders the forum page.
-- settings: Handles user settings management, including updating profile information and changing passwords.
+- settings: Handles user settings management, including updating profile
+    information and changing passwords.
 - change_password: Processes password change requests.
 
 Each route is protected by the `login_required` decorator, ensuring that
@@ -29,7 +30,7 @@ Module Dependencies:
 """
 
 from datetime import datetime
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
     login_required,
@@ -288,6 +289,34 @@ def delete_medication(med_id):
 @login_required
 def schedule():
     return render_template("dashboard/schedule.html")
+
+
+@dash.route("/get_medications", methods=["GET"])
+@login_required
+def get_medications():
+    """
+    Fetch and return medications for the logged-in user.
+
+    This route retrieves all medications associated with the currently
+    logged-in user and returns them in JSON format for display on the
+    schedule/calendar page.
+
+    Returns:
+        JSON: A JSON object with grouped medications by day and time of day.
+    """
+    user_id = current_user.id
+    grouped_meds = get_grouped_meds(user_id=user_id)
+
+    # Format the response as a JSON dictionary for use in JavaScript
+    meds_data = {
+        day: {
+            time: [(med.id, med_data.drug_name, med.dosage) for med, med_data in meds]
+            for time, meds in times.items()
+        }
+        for day, times in grouped_meds.items()
+    }
+
+    return jsonify(meds_data)
 
 
 @dash.route("/forum")
