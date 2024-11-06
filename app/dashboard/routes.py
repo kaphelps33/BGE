@@ -15,7 +15,8 @@ Key Functions:
 - delete_medication: Deletes a specified medication for the logged-in user.
 - schedule: Renders the schedule page.
 - forum: Renders the forum page.
-- settings: Handles user settings management, including updating profile information and changing passwords.
+- settings: Handles user settings management, including updating profile
+    information and changing passwords.
 - change_password: Processes password change requests.
 
 Each route is protected by the `login_required` decorator, ensuring that
@@ -28,8 +29,8 @@ Module Dependencies:
 - datetime: Standard library for date and time manipulation.
 """
 
-from datetime import datetime
-from flask import flash, redirect, render_template, request, url_for
+from datetime import datetime, timedelta
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
     login_required,
@@ -288,6 +289,72 @@ def delete_medication(med_id):
 @login_required
 def schedule():
     return render_template("dashboard/schedule.html")
+
+
+@dash.route("/get_medications", methods=["GET"])
+@login_required
+def get_medications():
+    """
+    Fetch and return medications for the logged-in user.
+    This route retrieves medications for the currently logged-in user
+    and returns them in JSON format for display on the schedule/calendar page.
+    """
+    # Get the current user's ID
+    user_id = current_user.id
+
+    # Query all medications for the logged-in user
+    medications = Medications.query.filter_by(user_id=user_id).all()
+
+    meds_data = []
+
+    # Weekday mapping to map 'M', 'T', 'W' etc. to index values
+    day_map = {
+        "monday": 0,
+        "tuesday": 1,
+        "wednesday": 2,
+        "thursday": 3,
+        "friday": 4,
+        "saturday": 5,
+        "sunday": 6,
+    }
+
+    for med in medications:
+        # Parse the start date and calculate the end date
+        start_date = med.created_at
+        duration = int(med.duration)  # Assuming duration is an integer (number of days)
+
+        # Calculate the end date by adding the duration to the start date
+        end_date = start_date + timedelta(days=duration)
+
+        # Parse the days_of_week field
+        days = med.days_of_week.split(",") if med.days_of_week != "all" else ["all"]
+
+        # Clean up each day, strip whitespace, and handle case sensitivity
+        if days != ["all"]:
+            days = [day.strip().lower() for day in days]
+
+            # Convert days from letters to numbers using the day_map
+            try:
+                days = [day_map[day] for day in days]
+            except KeyError as e:
+                print(
+                    f"Invalid day in days_of_week: {e}"
+                )  # Log or handle the error accordingly
+
+        # Add medication data to the list
+        meds_data.append(
+            {
+                "id": med.id,
+                "name": med.name,
+                "dosage": med.dosage,
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "days": days,  # Now the days are numerical
+                "duration": duration,
+            }
+        )
+
+    return jsonify(meds_data)
 
 
 @dash.route("/forum")
