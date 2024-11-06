@@ -29,7 +29,7 @@ Module Dependencies:
 - datetime: Standard library for date and time manipulation.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
@@ -296,25 +296,37 @@ def schedule():
 def get_medications():
     """
     Fetch and return medications for the logged-in user.
-
-    This route retrieves all medications associated with the currently
-    logged-in user and returns them in JSON format for display on the
-    schedule/calendar page.
-
-    Returns:
-        JSON: A JSON object with grouped medications by day and time of day.
+    This route retrieves medications for the currently logged-in user
+    and returns them in JSON format for display on the schedule/calendar page.
     """
+    # Get the current user's ID
     user_id = current_user.id
-    grouped_meds = get_grouped_meds(user_id=user_id)
 
-    # Format the response as a JSON dictionary for use in JavaScript
-    meds_data = {
-        day: {
-            time: [(med.id, med_data.drug_name, med.dosage) for med, med_data in meds]
-            for time, meds in times.items()
-        }
-        for day, times in grouped_meds.items()
-    }
+    # Query all medications for the logged-in user
+    medications = Medications.query.filter_by(user_id=user_id).all()
+
+    meds_data = []
+
+    for med in medications:
+        # Parse the start date and calculate the end date
+        start_date = med.created_at
+        duration = int(med.duration)  # Assuming duration is an integer (number of days)
+
+        # Calculate the end date by adding the duration to the start date
+        end_date = start_date + timedelta(days=duration)
+
+        # Add medication data to the list
+        meds_data.append(
+            {
+                "id": med.id,
+                "name": med.name,
+                "dosage": med.dosage,
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "days": med.days_of_week,
+                "duration": duration,
+            }
+        )
 
     return jsonify(meds_data)
 
