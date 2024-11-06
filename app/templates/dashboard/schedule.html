@@ -15,14 +15,5 @@
 
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',  // Start with a month view
-            events: "/get_medications",   // Fetch events from this endpoint
-        });
-        calendar.render();
-    });
-</script>
+<script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
 {% endblock %}

@@ -1,3 +1,5 @@
+from datetime import date
+
 from app.extensions import db
 
 
@@ -40,6 +42,7 @@ class Medications(db.Model):
         "MedicationData", backref="medications", lazy=True
     )
     status = db.Column(db.String, nullable=False, default="pending")
+    created_at = db.Column(db.Date, default=date.today, nullable=False)
 
     def __repr__(self):
         """Returns a string representation of the medication instance.
