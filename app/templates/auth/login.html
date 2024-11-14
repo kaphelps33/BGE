@@ -47,22 +47,6 @@
         <a class="nav-link" href="{{ url_for('auth.register') }}">Make a new account</a>
       </div>
     </div>
-
-    <!-- Display all users -->
-    <div class="card mt-3">
-      <div class="card-header">
-        <h4>Registered Users</h4>
-      </div>
-      <div class="card-body">
-        <ul class="list-group">
-          {% for user in users %}
-          <li class="list-group-item">{{ user.username }} ({{ user.email }})</li>
-          {% else %}
-          <li class="list-group-item">No users found.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
