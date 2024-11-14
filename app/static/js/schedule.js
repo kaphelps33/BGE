@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   fetch("/get_medications")
       .then((response) => response.json())
-      .then((medsData) => {
+      .then((medsData) => { console.log(medsData)
         medsData.forEach((med) => {
           let createdAt = new Date(med.start_date);  // Use the creation date as the starting point
           let duration = med.duration;
