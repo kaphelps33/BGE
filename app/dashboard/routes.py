@@ -158,10 +158,39 @@ def search_medication():
     return render_template("dashboard/search_results.html", medications=search_results)
 
 
+from datetime import datetime, timedelta, date
+from flask import flash, redirect, render_template, request, url_for, jsonify
+from flask_login import current_user, login_required
+
+from app.dashboard import dash
+from app.extensions import db
+from app.models.medication import Medications
+from app.models.medicationData import MedicationData
+from app.dashboard.forms import MedicationForm
+
+def get_next_day_of_week(created_at, target_days):
+    """Calculate the nearest future date for one of the target days of the week."""
+    day_name_to_index = {
+        "Monday": 0,
+        "Tuesday": 1,
+        "Wednesday": 2,
+        "Thursday": 3,
+        "Friday": 4,
+        "Saturday": 5,
+        "Sunday": 6,
+    }
+    target_day_indexes = [day_name_to_index[day] for day in target_days]
+
+    for i in range(7):
+        next_date = created_at + timedelta(days=i)
+        if next_date.weekday() in target_day_indexes:
+            return next_date
+    return created_at  # Default to created_at if no match is found
+
 @dash.route("/add_medication", methods=["GET", "POST"])
 @dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_medication(id):
+def add_medication(id=None):
     """
     Add a new medication for the logged-in user.
 
@@ -197,6 +226,17 @@ def add_medication(id):
         else:
             days_of_week_str = ", ".join(days_of_week) if days_of_week else "all"
 
+        created_at = date.today()  # Use today's date as the creation date
+
+        # Calculate the start date based on the selected days
+        if days_of_week_str != "all":
+            # Split and calculate the closest start date based on created_at and selected days
+            target_days = [day.strip().capitalize() for day in days_of_week]
+            start_listing_date = get_next_day_of_week(created_at, target_days)
+        else:
+            # If "all" days are selected, start from created_at
+            start_listing_date = created_at
+
         if id is not None:
             medication = (
                 db.session.query(MedicationData).filter(MedicationData.id == id).first()
@@ -212,6 +252,7 @@ def add_medication(id):
                     medication_data=id,
                     time_of_day=time_of_day,
                     days_of_week=days_of_week_str,
+                    created_at=created_at,  # Record the creation date
                 )
 
                 db.session.add(new_medication)
@@ -223,6 +264,7 @@ def add_medication(id):
                 print("No medication found with the given ID.")
 
     return render_template("dashboard/add_medications.html", form=form)
+
 
 
 @dash.route("/medication/update_status/<int:med_id>", methods=["POST"])
