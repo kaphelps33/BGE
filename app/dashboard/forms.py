@@ -12,14 +12,17 @@ from wtforms import (
     SelectMultipleField,
 )
 from wtforms.widgets import CheckboxInput, ListWidget
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 
 
 class MedicationForm(FlaskForm):
     """Form for adding medications to the users profile/dashboard."""
 
     # Medication dosage field
-    dosage = StringField("Dosage", validators=[DataRequired()])
+    dosage = DecimalField(
+        "Dosage", 
+        validators=[DataRequired(), NumberRange(min=0, max=120)]
+    )
     # Users can select different measurements of medication
     unit = SelectField(
         "Unit",
@@ -47,7 +50,6 @@ class MedicationForm(FlaskForm):
         validators=[DataRequired()],
     )
     # The days when a user takes their medications
-    # TODO: MAKE THIS REQUIRED WITH VALIDATORS
     days_of_week = SelectMultipleField(
         "Days of the Week",
         choices=[
@@ -62,13 +64,12 @@ class MedicationForm(FlaskForm):
         widget=ListWidget(prefix_label=False),
         option_widget=CheckboxInput(),
     )
-
     # Medication price
-    price = DecimalField("Price", validators=[DataRequired()])
-
-    # How long a user takes this medications
-    # TODO: MAKE IT SO THIS MUST BE ABOVE 0 DAYS AND CAN'T BE SOME CRAZY VALUE
-    # LIKE 1,000,000 DAYS
-    duration = IntegerField("Duration", validators=[DataRequired()])
+    price = DecimalField("Price", validators=[DataRequired(), NumberRange(min=0, max=1000)])
+    # How long a user takes this medication
+    duration = IntegerField(
+        "Duration (Days)", 
+        validators=[DataRequired(), NumberRange(min=1, max=720)]
+    )
     # Submit button
-    submit = SubmitField("Add Medication", validators=[DataRequired()])
+    submit = SubmitField("Add Medication")
