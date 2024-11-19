@@ -371,6 +371,7 @@ def delete_medication(med_id):
 @dash.route("/schedule")
 @login_required
 def schedule():
+    """Route to render the schedule page"""
     return render_template("dashboard/schedule.html")
 
 
@@ -438,12 +439,6 @@ def get_medications():
         )
 
     return jsonify(meds_data)
-
-
-@dash.route("/forum")
-@login_required
-def forum():
-    return render_template("dashboard/forum.html")
 
 
 @dash.route("/settings", methods=["GET", "POST"])
