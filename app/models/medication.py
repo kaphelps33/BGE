@@ -44,6 +44,8 @@ class Medications(db.Model):
     status = db.Column(db.String, nullable=False, default="pending")
     created_at = db.Column(db.Date, default=date.today, nullable=False)
 
+    days_taken = db.Column(db.String, default="")
+
     def __repr__(self):
         """Returns a string representation of the medication instance.
 

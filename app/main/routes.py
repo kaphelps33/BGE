@@ -1,8 +1,7 @@
+from datetime import timedelta
+from flask import render_template
 from app.main import main
 
-from flask import render_template
-
-from datetime import timedelta
 
 def get_next_day_of_week(created_at, target_days):
     """Calculate the nearest future date for one of the target days of the week.
