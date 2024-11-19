@@ -64,11 +64,14 @@ def dashboard():
 
     today = datetime.now().strftime("%A")
 
+    current_date = datetime.now().strftime('%B %d, %Y')
+
     return render_template(
         "dashboard/dashboard.html",
         current_user=current_user,
         grouped_meds=grouped_meds,
         today=today,
+        current_date = current_date
     )
 
 
@@ -83,13 +86,13 @@ def get_grouped_meds(user_id):
 
     # Group medications by day of the week and time of day
     days = [
+        "Sunday",
         "Monday",
         "Tuesday",
         "Wednesday",
         "Thursday",
         "Friday",
         "Saturday",
-        "Sunday",
     ]
 
     grouped_meds = {

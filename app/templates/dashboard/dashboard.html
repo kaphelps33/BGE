@@ -6,15 +6,15 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        {% include "dashboard/sidebar.html" %}
+
         <!-- Sidebar -->
         <!-- Main content -->
-        <main class="col-lg-9 col-md-8 mr-3">
+        <main class="col mr-3">
             <div class="container pt-4">
                 <!-- Header with User and Date -->
                 <h2>Welcome {{ current_user.username }}</h2>
-                <p>{{ current_user.date_added.strftime('%B %d, %Y') }}</p>
-                <!-- Header with User and Date -->
+                <p>{{ current_date }}</p>
+                <!-- Header with User and current Date -->
             </div>
             <!-- Search Bar -->
             <form>
@@ -27,7 +27,7 @@
             <ul id="results" class="list-group"></ul>
             <!-- Search Bar -->
             <!-- Where medications are listed -->
-            <div class="container overflow-auto" style="max-height: 40rem;">
+            <div class="container overflow-auto p-3 rounded" style="max-height: 40rem;">
                 {% for day, times in grouped_meds.items() %}
                 {% if times %}
                 <h2 class="mt-4">{{ day }}</h2>
@@ -40,28 +40,32 @@
                         {% for med, med_data in meds %}
                         <div class="col-xl-6 col-md-12 ">
                             <div
-                                class="card overflow-hidden {% if day == today and med.status == 'taken' %}bg-success text-white{% endif %}">
+                                class="card overflow-hidden mb-3 {% if day == today and med.status == 'taken' %}text-bg-dark{% endif %}">
                                 <div class="card-content">
                                     <div class="card-body d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
                                             <div>
-                                                <h4 class="mb-0">{{ med.name | title }}</h4>
+                                                <h4 class="mb-0">{{ med.name | title }} <i
+                                                        class="fas fa-info-circle info-icon" data-bs-toggle="modal"
+                                                        data-bs-target="#infoModal{{ med.id }}"></i> </h4>
                                                 <span>{{ med.dosage }} - ${{ med.price }}</span>
                                             </div>
                                         </div>
-                                        <p class="mb-0">{{ med.duration }} day quantity</p>
-                                        <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
-                                            data-bs-target="#infoModal{{ med.id }}"></i>
+                                        <!-- <p class="mb-0">{{ med.duration }} day quantity</p> -->
                                         {% if day == today %}
                                         <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
                                             method="POST" style="display: inline;">
                                             {% if med.status == 'taken' %}
-                                            <button type="submit" class="btn btn-primary ">Mark as Not Taken</button>
+                                            <button type="submit" class="btn text-white"
+                                                style=" background-color: #885053; ">Mark
+                                                as Not Taken</button>
                                             {% else %}
-                                            <button type="submit" class="btn btn-success ">Mark as Taken</button>
+                                            <button type="submit" class="btn" style=" background-color: #F18F01; ">Mark
+                                                as Taken</button>
                                             {% endif %}
                                         </form>
                                         {% endif %}
+
                                     </div>
                                 </div>
                             </div>

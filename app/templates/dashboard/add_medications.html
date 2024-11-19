@@ -2,69 +2,71 @@
 {% block title %}Schedule{% endblock %}
 {% block content %}
 <div class="container">
-  <h1>Add Medications</h1>
-  <p>This is the schedule page content.</p>
-  <form method="POST" action="">
+  <h1 class="text-center">Add Medications</h1>
+  <p class="text-center">This is the schedule page content.</p>
+  <form method="POST" action="" class="card-body p-5 rounded text-muted p-3" style=" background-color: #885053;">
     {{ form.hidden_tag() }}
-    <div class="form-group">
-      <div class="row">
-        <div class="col">
-          {{ form.dosage.label(class="form-label") }}
-          {{ form.dosage(class="form-control", placeholder="Dosage") }}
-        </div>
-        <div class="col">
-          {{ form.unit.label(class="form-label") }}
-          {{ form.unit(class="form-control") }}
+    <div class="card-body rounded p-3 text-bg-dark">
+      <div class="form-group p-2">
+        <div class="mb-3 row">
+          <div class="col">
+            {{ form.dosage.label(class="form-label") }}
+            {{ form.dosage(class="form-control", placeholder="Dosage") }}
+          </div>
+          <div class="col-sm-5">
+            {{ form.unit.label(class="form-label") }}
+            {{ form.unit(class="form-select") }}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Time of Day</label>
-      <div class="form-check form-check-inline">
-        {% for subfield in form.time_of_day %}
+      <div class="form-group mb-3 p-2">
+        <label class="form-label h4">Time of Day</label>
+        <div class="form-check form-check">
+          {% for subfield in form.time_of_day %}
+          <div class="form-check form-check-inline p-2">
+            {{ subfield(class="form-check-input", id="option5") }} <!-- Radio input -->
+            {{ subfield.label(class="form-check-label") }} <!-- Radio label -->
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group p-2">
+        {{ form.days_of_week.label(class="form-label h4 mb-3") }}
+        <div class="form-check">
+          <input type="checkbox" id="selectAll" class="form-check-input" />
+          <label for="selectAll" class="form-check-label">Select All</label>
+        </div>
         <div class="form-check form-check-inline">
-          {{ subfield(class="form-check-input") }} <!-- Radio input -->
-          {{ subfield.label(class="form-check-label") }} <!-- Radio label -->
+          {% for subfield in form.days_of_week %}
+          <div class="form-check form-check-inline p-2">
+            {{ subfield(class="form-check-input") }} <!-- Checkbox input -->
+            {{ subfield.label(class="form-check-label") }} <!-- Checkbox label -->
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
       </div>
-    </div>
-    <div class="form-group">
-      {{ form.days_of_week.label(class="form-label") }}
-      <div class="form-check">
-        <input type="checkbox" id="selectAll" class="form-check-input" />
-        <label for="selectAll" class="form-check-label">Select All</label>
-      </div>
-      <div class="form-check form-check-inline">
-        {% for subfield in form.days_of_week %}
-        <div class="form-check form-check-inline">
-          {{ subfield(class="form-check-input") }} <!-- Checkbox input -->
-          {{ subfield.label(class="form-check-label") }} <!-- Checkbox label -->
-        </div>
-        {% endfor %}
-      </div>
-    </div>
 
-    <div class="form-group">
-      {{ form.price.label(class="form-label") }}
-      {{ form.price(class="form-control") }}
-    </div>
-    <div class="form-group">
-      {{ form.duration.label(class="form-label") }}
-      {{ form.duration(class="form-control") }}
-    </div>
-    <div class="form-group">
-      {{ form.submit(class="btn btn-primary") }}
+      <div class="form-group mb-3">
+        {{ form.price.label(class="form-label") }}
+        {{ form.price(class="form-control") }}
+      </div>
+      <div class="form-group">
+        {{ form.duration.label(class="form-label") }}
+        {{ form.duration(class="form-control") }}
+      </div>
+      <div class="form-group p-2">
+        {{ form.submit(class="btn mt-3", style="background-color: #F18F01") }}
+        <a href="{{ url_for('dash.dashboard') }}" class="btn btn-light mt-3">Back to Dashboard</a>
+      </div>
     </div>
   </form>
-  <a href="{{ url_for('dash.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+  <script>
+    document.getElementById('selectAll').onclick = function () {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][name="days_of_week"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = this.checked;
+      });
+    };
+  </script>
 </div>
-<script>
-  document.getElementById('selectAll').onclick = function () {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="days_of_week"]');
-    checkboxes.forEach((checkbox) => {
-      checkbox.checked = this.checked;
-    });
-  };
-</script>
 {% endblock %}
