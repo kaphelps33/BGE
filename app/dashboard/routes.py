@@ -29,12 +29,13 @@ Module Dependencies:
 - datetime: Standard library for date and time manipulation.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask_login import (
     current_user,
     login_required,
 )
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.dashboard import dash
 from app.extensions import db
@@ -73,6 +74,24 @@ def dashboard():
         today=today,
         current_date = current_date
     )
+
+
+def reset():
+    """Reset medication status to 'not taken' for all medications at midnight"""
+    today = datetime.today().date()
+    medications = Medications.query.filter(Medications.days_taken != None).all()
+
+    for medication in medications:
+        # Reset status for all medications
+        if today not in medication.days_taken:
+            medication.status = "not taken"
+            db.session.commit()
+
+
+# Setup the scheduler to run at midnight
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=reset, trigger="cron", hour=0, minute=0)
+scheduler.start()
 
 
 def get_grouped_meds(user_id):
@@ -161,10 +180,30 @@ def search_medication():
     return render_template("dashboard/search_results.html", medications=search_results)
 
 
+def get_next_day_of_week(created_at, target_days):
+    """Calculate the nearest future date for one of the target days of the week."""
+    day_name_to_index = {
+        "Monday": 0,
+        "Tuesday": 1,
+        "Wednesday": 2,
+        "Thursday": 3,
+        "Friday": 4,
+        "Saturday": 5,
+        "Sunday": 6,
+    }
+    target_day_indexes = [day_name_to_index[day] for day in target_days]
+
+    for i in range(7):
+        next_date = created_at + timedelta(days=i)
+        if next_date.weekday() in target_day_indexes:
+            return next_date
+    return created_at  # Default to created_at if no match is found
+
+
 @dash.route("/add_medication", methods=["GET", "POST"])
 @dash.route("/add_medication/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_medication(id):
+def add_medication(id=None):
     """
     Add a new medication for the logged-in user.
 
@@ -200,6 +239,17 @@ def add_medication(id):
         else:
             days_of_week_str = ", ".join(days_of_week) if days_of_week else "all"
 
+        created_at = date.today()  # Use today's date as the creation date
+
+        # Calculate the start date based on the selected days
+        if days_of_week_str != "all":
+            # Split and calculate the closest start date based on created_at and selected days
+            target_days = [day.strip().capitalize() for day in days_of_week]
+            start_listing_date = get_next_day_of_week(created_at, target_days)
+        else:
+            # If "all" days are selected, start from created_at
+            start_listing_date = created_at
+
         if id is not None:
             medication = (
                 db.session.query(MedicationData).filter(MedicationData.id == id).first()
@@ -215,6 +265,7 @@ def add_medication(id):
                     medication_data=id,
                     time_of_day=time_of_day,
                     days_of_week=days_of_week_str,
+                    created_at=created_at,  # Record the creation date
                 )
 
                 db.session.add(new_medication)
@@ -228,6 +279,9 @@ def add_medication(id):
     return render_template("dashboard/add_medications.html", form=form)
 
 
+from sqlalchemy import func, update
+
+
 @dash.route("/medication/update_status/<int:med_id>", methods=["POST"])
 @login_required
 def update_medication_status(med_id):
@@ -239,19 +293,48 @@ def update_medication_status(med_id):
     medication ID and updates its status accordingly. The function commits the
     change to the database and redirects the user back to the dashboard.
 
-    Parameters:
-        med_id (int): The ID of the medication whose status is to be updated.
-
-    Returns:
-        Redirects the user to the dashboard after updating the medication
-        status.
+    If the medication is marked as taken, the current date is appended to the
+    days_taken list.
     """
     medication = Medications.query.get(med_id)
 
     if medication:
-        # Toggle status
-        medication.status = "not taken" if medication.status == "taken" else "taken"
+        current_date = (
+            datetime.now().date().strftime("%m-%d-%Y")
+        )  # Format the date as MM-DD-YYYY
+        print(f"Before: {medication.days_taken}")  # Debugging output
+
+        # If the status is 'taken', add the current date to days_taken
+        if medication.status == "taken":
+            medication.status = "not taken"
+            # Remove the current date from days_taken if the status is being toggled off
+            if current_date in medication.days_taken:
+                # Remove the date from the comma-separated list
+                medication.days_taken = ",".join(
+                    [
+                        date
+                        for date in medication.days_taken.split(",")
+                        if date != current_date
+                    ]
+                )
+        else:
+            medication.status = "taken"
+            # Append the current date to days_taken if not already added
+            if current_date not in medication.days_taken:
+                if medication.days_taken:
+                    # Append new date
+                    # TODO: THIS MUST BE TESTED TOMORROW NOVEMBER 20!!!!
+                    medication.days_taken += "," + current_date
+                else:
+                    # initialize first date
+                    medication.days_taken = current_date
+
+        # Commit the changes to the database
         db.session.commit()
+
+        print(f"After: {medication.days_taken}")  # Debugging output
+    else:
+        print(f"Medication with id {med_id} not found!")
 
     return redirect(url_for("dash.dashboard"))
 
@@ -291,6 +374,7 @@ def delete_medication(med_id):
 @dash.route("/schedule")
 @login_required
 def schedule():
+    """Route to render the schedule page"""
     return render_template("dashboard/schedule.html")
 
 
@@ -358,12 +442,6 @@ def get_medications():
         )
 
     return jsonify(meds_data)
-
-
-@dash.route("/forum")
-@login_required
-def forum():
-    return render_template("dashboard/forum.html")
 
 
 @dash.route("/settings", methods=["GET", "POST"])

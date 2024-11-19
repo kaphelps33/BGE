@@ -14,7 +14,6 @@
                 <!-- Header with User and Date -->
                 <h2>Welcome {{ current_user.username }}</h2>
                 <p>{{ current_date }}</p>
-                <!-- Header with User and current Date -->
             </div>
             <!-- Search Bar -->
             <form>
@@ -51,8 +50,13 @@
                                                 <span>{{ med.dosage }} - ${{ med.price }}</span>
                                             </div>
                                         </div>
-                                        <!-- <p class="mb-0">{{ med.duration }} day quantity</p> -->
+
                                         {% if day == today %}
+
+                                        <p class="mb-0">{{ med.duration }} day quantity</p>
+                                        <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
+                                            data-bs-target="#infoModal{{ med.id }}"></i>
+
                                         <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
                                             method="POST" style="display: inline;">
                                             {% if med.status == 'taken' %}
@@ -65,7 +69,6 @@
                                             {% endif %}
                                         </form>
                                         {% endif %}
-
                                     </div>
                                 </div>
                             </div>

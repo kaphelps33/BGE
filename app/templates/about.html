@@ -4,32 +4,23 @@
 <section class="jumbotron text-center">
   <div class="container">
     <h2 class="jumbotron-heading">About Us</h2>
-    <p class="align-items-center">BGE Consortium is a pharmaceutical harm reduction tool that
-      provides doctors and patients with a secure and
-      intelligent platform to prescribe medications safely by analyzing patient history, current medications, and
-      potential
-      drug interactions, ensuring accurate dosages and reducing the risk of adverse effects.</p>
+    <p class="lead">BGE Consortium is a pharmaceutical harm reduction tool providing doctors and patients with a secure, intelligent platform for safe medication prescription. It analyzes patient history, current medications, and potential drug interactions to ensure accurate dosages and reduce adverse effects.</p>
   </div>
 </section>
 
-<section class="jumbotron">
-  <h3 class="text-center">About our team</h3>
+<section class="container my-5">
+  <h3 class="text-center mb-4">Meet Our Team</h3>
 
-  <ul class="list-group">
-    <!-- <img src="{{url_for('static', filename='Chris_Profile.jpg')}}" alt="Kelsey Profile" class="img-fluid"
-      style="height: 300px; width: 300px;"> -->
-
-
+  <div class="row row-cols-1 row-cols-md-2 g-4">
     <!-- Kelsey Card -->
-    <li class="list-group-item" style="background-color: #cdd6dd;">
-      <div class="card mb-3 w-100" style="color: white; background-color: #885053;">
+    <div class="col">
+      <div class="card h-100 border-0" style="background-color: #885053;">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src="{{url_for('static', filename='images/Kelsey_Profile.jpg')}}" class="img-fluid rounded-start"
-              alt="Kelsey Profile">
+            <img src="{{ url_for('static', filename='images/Kelsey_Profile.jpg') }}" class="img-fluid rounded-start" alt="Kelsey Profile">
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
+          <div class="col-md-8 d-flex align-items-center">
+            <div class="card-body text-light">
               <h5 class="card-title">Kelsey Phelps</h5>
               <h6 class="card-subtitle mb-2 text-muted">Developer</h6>
               <p class="card-text">Mr. Developer himself</p>
@@ -37,18 +28,17 @@
           </div>
         </div>
       </div>
-    </li>
+    </div>
 
     <!-- Chris Card -->
-    <li class="list-group-item" style="background-color: #cdd6dd;">
-      <div class="card mb-3 w-100" style="color: white; background-color: #885053;">
+    <div class="col">
+      <div class="card h-100 border-0" style="background-color: #885053;">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src="{{url_for('static', filename='images/Chris_Profile.jpg')}}" class="img-fluid rounded-start"
-              alt="Chris Profile">
+            <img src="{{ url_for('static', filename='images/Chris_Profile.jpg') }}" class="img-fluid rounded-start" alt="Chris Profile">
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
+          <div class="col-md-8 d-flex align-items-center">
+            <div class="card-body text-light">
               <h5 class="card-title">Chris DeMarchi</h5>
               <h6 class="card-subtitle mb-2 text-muted">Developer</h6>
               <p class="card-text">Mr. Developer 2</p>
@@ -56,18 +46,17 @@
           </div>
         </div>
       </div>
-    </li>
+    </div>
 
     <!-- Rushil Card -->
-    <li class="list-group-item" style="background-color: #cdd6dd;">
-      <div class="card mb-3 w-100" style="color: white; background-color: #885053;">
+    <div class="col">
+      <div class="card h-100 border-0" style="background-color: #885053;">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src="{{url_for('static', filename='images/Rushil_Profile.jpg')}}" class="img-fluid rounded-start"
-              alt="Rushil Profile">
+            <img src="{{ url_for('static', filename='images/Rushil_Profile.jpg') }}" class="img-fluid rounded-start" alt="Rushil Profile">
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
+          <div class="col-md-8 d-flex align-items-center">
+            <div class="card-body text-light">
               <h5 class="card-title">Rushil Jadia</h5>
               <h6 class="card-subtitle mb-2 text-muted">Developer</h6>
               <p class="card-text">Mr. Design</p>
@@ -75,18 +64,17 @@
           </div>
         </div>
       </div>
-    </li>
+    </div>
 
     <!-- Bailey Card -->
-    <li class="list-group-item" style="background-color: #cdd6dd;">
-      <div class="card mb-3 w-100" style="color: white; background-color: #885053;">
+    <div class="col">
+      <div class="card h-100 border-0" style="background-color: #885053;">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src="{{url_for('static', filename='images/Bailey_Profile.jpg')}}" class="img-fluid rounded-start"
-              alt="Bailey Profile">
+            <img src="{{ url_for('static', filename='images/Bailey_Profile.jpg') }}" class="img-fluid rounded-start" alt="Bailey Profile">
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
+          <div class="col-md-8 d-flex align-items-center">
+            <div class="card-body text-light">
               <h5 class="card-title">Bailey Bowling</h5>
               <h6 class="card-subtitle mb-2 text-muted">Developer</h6>
               <p class="card-text">Medication taker</p>
@@ -94,7 +82,7 @@
           </div>
         </div>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 </section>
 {% endblock %}
