@@ -17,14 +17,23 @@
                 <!-- Header with User and current Date -->
             </div>
             <!-- Search Bar -->
-            <form>
-                <div class="input-group mb-3">
-                    <input type="text" name="query" class="form-control" placeholder="Search medication"
-                        aria-label="Search medication" hx-get="{{ url_for('dash.search_medication') }}"
-                        hx-target="#results" hx-trigger="keyup changed delay:50ms">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <!-- Search bar -->
+                    <div class="col-12 col-md-12">
+                        <form>
+                            <div class="input-group">
+                                <input type="text" name="query" class="form-control" placeholder="Search medication"
+                                    aria-label="Search medication" hx-get="{{ url_for('dash.search_medication') }}"
+                                    hx-target="#results" hx-trigger="keyup changed delay:50ms">
+                            </div>
+                        </form>
+                        <!-- Search results -->
+                        <ul id="results" class="list-group mt-2"></ul>
+                    </div>
                 </div>
-            </form>
-            <ul id="results" class="list-group"></ul>
+            </div>
+
             <!-- Search Bar -->
             <!-- Where medications are listed -->
             <div class="container overflow-auto p-3 rounded" style="max-height: 40rem;">
@@ -38,9 +47,9 @@
                     <div class="col-md-12">
                         <h4 class="mt-4">{{ time_of_day }}</h4>
                         {% for med, med_data in meds %}
-                        <div class="col-xl-6 col-md-12 ">
+                        <div class="col-xl-12 col-md-12 ">
                             <div
-                                class="card overflow-hidden mb-3 {% if day == today and med.status == 'taken' %}text-bg-dark{% endif %}">
+                                class="card overflow-hidden mb-3 {% if day == today and med.status == 'taken' %}text-bg-success{% endif %}">
                                 <div class="card-content">
                                     <div class="card-body d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
@@ -56,11 +65,10 @@
                                         <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
                                             method="POST" style="display: inline;">
                                             {% if med.status == 'taken' %}
-                                            <button type="submit" class="btn text-white"
-                                                style=" background-color: #885053; ">Mark
+                                            <button type="submit" class="btn btn-light">Mark
                                                 as Not Taken</button>
                                             {% else %}
-                                            <button type="submit" class="btn" style=" background-color: #F18F01; ">Mark
+                                            <button type="submit" class="btn btn-danger">Mark
                                                 as Taken</button>
                                             {% endif %}
                                         </form>
