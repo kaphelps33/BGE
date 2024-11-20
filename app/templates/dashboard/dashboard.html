@@ -56,7 +56,7 @@
                                                 <h4 class="mb-0">{{ med.name | title }} <i
                                                         class="fas fa-info-circle info-icon" data-bs-toggle="modal"
                                                         data-bs-target="#infoModal{{ med.id }}"></i> </h4>
-                                                <span>{{ med.dosage }} - ${{ med.price }}</span>
+                                                <span>{{ med.dosage }} - ${{ "%.2f"|format(med.price) }}</span>
                                             </div>
                                         </div>
 
