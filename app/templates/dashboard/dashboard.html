@@ -61,18 +61,13 @@
                                         </div>
 
                                         {% if day == today %}
-
-                                        <p class="mb-0">{{ med.duration }} day quantity</p>
-                                        <i class="fas fa-info-circle info-icon" data-bs-toggle="modal"
-                                            data-bs-target="#infoModal{{ med.id }}"></i>
-
                                         <form action="{{ url_for('dash.update_medication_status', med_id=med.id) }}"
                                             method="POST" style="display: inline;">
                                             {% if med.status == 'taken' %}
                                             <button type="submit" class="btn btn-light">Mark
                                                 as Not Taken</button>
                                             {% else %}
-                                            <button type="submit" class="btn btn-danger">Mark
+                                            <button type="submit" class="btn btn-primary">Mark
                                                 as Taken</button>
                                             {% endif %}
                                         </form>
@@ -141,7 +136,6 @@
                 </div>
                 {% endif %}
                 {% endfor %}
-
             </div>
             <!-- Where medications are listed -->
         </main>
