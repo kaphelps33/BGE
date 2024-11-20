@@ -64,11 +64,11 @@ class MedicationForm(FlaskForm):
     )
     # Medication price
     price = DecimalField(
-        "Price", validators=[DataRequired(), NumberRange(min=0, max=1000)]
+        "Price", validators=[DataRequired(), NumberRange(min=1, max=100000)]
     )
     # How long a user takes this medication
     duration = IntegerField(
-        "Duration (Days)", validators=[DataRequired(), NumberRange(min=1, max=720)]
+        "Duration (Days)", validators=[DataRequired(), NumberRange(min=1, max=30)]
     )
     # Submit button
     submit = SubmitField("Add Medication")
