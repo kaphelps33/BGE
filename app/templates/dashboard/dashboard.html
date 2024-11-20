@@ -45,7 +45,7 @@
                     {% for time_of_day, meds in times.items() %}
                     {% if meds %}
                     <div class="col-md-12">
-                        <h4 class="mt-4">{{ time_of_day }}</h4>
+                        <h4 class="mt-4">{{ time_of_day.replace('_', ' ') }}</h4>
                         {% for med, med_data in meds %}
                         <div class="col-xl-12 col-md-12 ">
                             <div
