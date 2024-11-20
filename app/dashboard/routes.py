@@ -77,15 +77,23 @@ def dashboard():
 
 
 def reset():
-    """Reset medication status to 'not taken' for all medications at midnight"""
+    """Reset medication status to 'not taken' only for days not marked as 'taken'."""
     today = datetime.today().date()
-    medications = Medications.query.filter(Medications.days_taken != None).all()
+    today_str = today.strftime("%Y-%m-%d")  # Format today's date as a string
+    medications = Medications.query.all()
 
     for medication in medications:
-        # Reset status for all medications
-        if today not in medication.days_taken:
+        days_taken = medication.days_taken.split(",") if medication.days_taken else []
+
+        # If today's date is not in `days_taken`, reset the status to 'not taken'
+        if today_str not in days_taken:
             medication.status = "not taken"
-            db.session.commit()
+        else:
+            # If today is already marked as 'taken', keep the status as 'taken'
+            medication.status = "taken"
+
+        db.session.commit()
+
 
 
 # Setup the scheduler to run at midnight
@@ -378,67 +386,53 @@ def schedule():
 @dash.route("/get_medications", methods=["GET"])
 @login_required
 def get_medications():
-    """
-    Fetch and return medications for the logged-in user.
-    This route retrieves medications for the currently logged-in user
-    and returns them in JSON format for display on the schedule/calendar page.
-    """
-    # Get the current user's ID
     user_id = current_user.id
-
-    # Query all medications for the logged-in user
     medications = Medications.query.filter_by(user_id=user_id).all()
 
     meds_data = []
-
-    # Weekday mapping to map 'M', 'T', 'W' etc. to index values
     day_map = {
-        "monday": 0,
-        "tuesday": 1,
-        "wednesday": 2,
-        "thursday": 3,
-        "friday": 4,
-        "saturday": 5,
-        "sunday": 6,
+        "monday": 0, "tuesday": 1, "wednesday": 2,
+        "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6
     }
 
     for med in medications:
-        # Parse the start date and calculate the end date
         start_date = med.created_at
-        duration = int(med.duration)  # Assuming duration is an integer (number of days)
+        duration = int(med.duration)
 
-        # Calculate the end date by adding the duration to the start date
-        end_date = start_date + timedelta(days=duration)
+        # Parse days_of_week into numeric values
+        if med.days_of_week != "all":
+            target_days = [day_map[day.strip().lower()] for day in med.days_of_week.split(",")]
+        else:
+            target_days = list(range(7))  # All days of the week
 
-        # Parse the days_of_week field
-        days = med.days_of_week.split(",") if med.days_of_week != "all" else ["all"]
+        # Calculate the actual number of weeks needed to fit the duration
+        days_per_week = len(target_days)
+        if days_per_week == 0:
+            days_per_week = 1  # Avoid division by zero if no days are set
+        weeks_needed = (duration + days_per_week - 1) // days_per_week
+        end_date = start_date + timedelta(weeks=weeks_needed)
 
-        # Clean up each day, strip whitespace, and handle case sensitivity
-        if days != ["all"]:
-            days = [day.strip().lower() for day in days]
+        # Convert days_taken into ISO 8601 format
+        days_taken = [
+            datetime.strptime(day.strip(), "%m-%d-%Y").strftime("%Y-%m-%d")
+            for day in med.days_taken.split(",") if day
+        ]
 
-            # Convert days from letters to numbers using the day_map
-            try:
-                days = [day_map[day] for day in days]
-            except KeyError as e:
-                print(
-                    f"Invalid day in days_of_week: {e}"
-                )  # Log or handle the error accordingly
-
-        # Add medication data to the list
-        meds_data.append(
-            {
-                "id": med.id,
-                "name": med.name,
-                "dosage": med.dosage,
-                "start_date": start_date.strftime("%Y-%m-%d"),
-                "end_date": end_date.strftime("%Y-%m-%d"),
-                "days": days,  # Now the days are numerical
-                "duration": duration,
-            }
-        )
+        meds_data.append({
+            "id": med.id,
+            "name": med.name,
+            "dosage": med.dosage,
+            "start_date": start_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "days": target_days,
+            "duration": duration,
+            "days_taken": days_taken,
+        })
 
     return jsonify(meds_data)
+
+
+
 
 
 @dash.route("/settings", methods=["GET", "POST"])

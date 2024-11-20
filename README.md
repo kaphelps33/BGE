@@ -7,8 +7,8 @@
 **Meet the Team**
 - [Rushil Jadia](https://github.com/rushiljadia) - Developer
 - [Kelsey Phelps](https://github.com/kaphelps33) - Designer 
-- [Chris DeMarchi]() - Tester
-- [Bailey Bowling]() - Manager
+- [Chris DeMarchi](https://github.com/cdemarch) - Tester
+- [Bailey Bowling](https://github.com/BailZ1) - Manager
 ---
 ### Demo
 ![presentationGif](https://github.com/user-attachments/assets/b6d6eb78-0bac-40a6-9d5a-ad4f98ab31dc)
