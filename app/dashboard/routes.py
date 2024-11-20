@@ -398,20 +398,25 @@ def get_medications():
     for med in medications:
         start_date = med.created_at
         duration = int(med.duration)
-        end_date = start_date + timedelta(days=duration)
 
-        # Standardize days_of_week to numerical format
+        # Parse days_of_week into numeric values
         if med.days_of_week != "all":
-            days = [day_map[day.strip().lower()] for day in med.days_of_week.split(",")]
+            target_days = [day_map[day.strip().lower()] for day in med.days_of_week.split(",")]
         else:
-            days = list(range(7))  # All days of the week
+            target_days = list(range(7))  # All days of the week
 
-        # Standardize days_taken to ISO 8601 format
+        # Calculate the actual number of weeks needed to fit the duration
+        days_per_week = len(target_days)
+        if days_per_week == 0:
+            days_per_week = 1  # Avoid division by zero if no days are set
+        weeks_needed = (duration + days_per_week - 1) // days_per_week
+        end_date = start_date + timedelta(weeks=weeks_needed)
+
+        # Convert days_taken into ISO 8601 format
         days_taken = [
             datetime.strptime(day.strip(), "%m-%d-%Y").strftime("%Y-%m-%d")
             for day in med.days_taken.split(",") if day
         ]
-
 
         meds_data.append({
             "id": med.id,
@@ -419,12 +424,13 @@ def get_medications():
             "dosage": med.dosage,
             "start_date": start_date.strftime("%Y-%m-%d"),
             "end_date": end_date.strftime("%Y-%m-%d"),
-            "days": days,
+            "days": target_days,
             "duration": duration,
             "days_taken": days_taken,
         })
 
     return jsonify(meds_data)
+
 
 
 

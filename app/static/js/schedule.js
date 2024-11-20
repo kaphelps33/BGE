@@ -10,14 +10,16 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("/get_medications")
       .then((response) => response.json())
       .then((medsData) => {
-        console.log(medsData); // Debugging: Check the data structure
+        console.log("Medications Data:", medsData); // Log entire data structure
         medsData.forEach((med) => {
           let startDate = new Date(med.start_date);
           let endDate = new Date(med.end_date);
           let daysTaken = med.days_taken || [];
-          const targetDays = med.days;
+          const targetDays = med.days; // Days of the week (e.g., [0, 2, 4])
+          let occurrences = 0;
 
-          while (startDate <= endDate) {
+          // Iterate over the range of dates
+          while (startDate <= endDate && occurrences < med.duration) {
             if (targetDays.includes(startDate.getDay())) {
               let color = daysTaken.includes(startDate.toISOString().split("T")[0])
                   ? "green" // Taken
@@ -29,32 +31,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 allDay: true,
                 backgroundColor: color,
               });
+
+              occurrences++;
             }
-            startDate.setDate(startDate.getDate() + 1); // Move to the next day
+
+            // Move to the next day
+            startDate.setDate(startDate.getDate() + 1);
           }
+
+          console.log(`Total occurrences for ${med.name}: ${occurrences}`);
         });
       })
       .catch((error) => console.error("Error fetching medications:", error));
 });
-
-function markMedicationTaken(medId, date) {
-  fetch(`/medication/update_status/${medId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date: date }),
-  })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          // Update the calendar event color
-          let event = calendar.getEventById(medId);
-          if (event) {
-            event.setProp("backgroundColor", "green");
-          }
-        }
-      })
-      .catch((error) => console.error("Error updating medication status:", error));
-}
-
