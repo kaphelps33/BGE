@@ -1,17 +1,13 @@
-<!-- Settings.html -->
 {% extends "base.html" %}
 
 {% block title %}{{ current_user.name }} Settings{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-
-        <!-- Sidebar -->
+    <div class="row justify-content-center">
         <!-- Main content -->
-        <!-- Personal Information Section -->
-        <main class="col mr-3" style="margin-top: 58px;">
+        <main class="col-md-8" style="margin-top: 58px;">
+            <!-- Personal Information Section -->
             <div class="row align-items-center">
                 <!-- TODO: FIX PROFILE IMAGE UPLOAD AND DISPLAY -->
                 <!-- Profile Image -->
@@ -26,9 +22,8 @@
                     </div>
                 </div> -->
                 <!-- Profile Image -->
-
                 <!-- Account Details -->
-                <div class="col-md-8">
+                <div class="col-12">
                     <h4>Account Details</h4>
                     <form method="POST" action="{{ url_for('dash.settings') }}">
                         <!-- First Name -->
@@ -53,15 +48,16 @@
                         </div>
                         <!-- Email -->
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary mt-4">Save New Changes</button>
+                        <button type="submit" class="btn btn-primary mt-4 w-100">Save New Changes</button>
                         <!-- Submit Button -->
                     </form>
                 </div>
             </div>
             <!-- Personal Information Section -->
+
             <!-- Security Section -->
             <div class="row mt-5">
-                <div class="col">
+                <div class="col-12">
                     <h4>Security</h4>
                     <form method="POST" action="{{ url_for('dash.change_password') }}">
                         <!-- Current Password  -->
@@ -86,7 +82,7 @@
                         </div>
                         <!-- Confirm New Password  -->
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-outline-secondary">Change Password</button>
+                        <button type="submit" class="btn btn-outline-secondary w-100">Change Password</button>
                         <!-- Submit Button -->
                     </form>
                 </div>
@@ -96,6 +92,7 @@
         <!-- Main Section -->
     </div>
 </div>
+
 <!-- Footer -->
 <footer class="footer bg-light text-center text-lg-start p-1 mt-4">
     <div class="container">

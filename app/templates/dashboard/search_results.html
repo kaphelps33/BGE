@@ -1,5 +1,5 @@
 {% for med in medications %}
-<li class="list-group-item">
+<li class="list-group-item justify-content-center">
     <a href="{{ url_for('dash.add_medication', id=med.id) }}"><strong>{{ med.drug_name }}</strong></a><br>
     {{ med.medical_condition }}<br>
 </li>
