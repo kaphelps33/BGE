@@ -35,7 +35,6 @@ from flask_login import (
     current_user,
     login_required,
 )
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.dashboard import dash
 from app.extensions import db
@@ -93,13 +92,6 @@ def reset():
             medication.status = "taken"
 
         db.session.commit()
-
-
-
-# Setup the scheduler to run at midnight
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=reset, trigger="cron", hour=0, minute=0)
-scheduler.start()
 
 
 def get_grouped_meds(user_id):
@@ -181,8 +173,6 @@ def search_medication():
 
     # Render the search results
     return render_template("dashboard/search_results.html", medications=search_results)
-
-
 
 
 def get_next_day_of_week(created_at, target_days):
@@ -383,13 +373,40 @@ def schedule():
 @dash.route("/get_medications", methods=["GET"])
 @login_required
 def get_medications():
+    """
+    Retrieves a list of medications for the currently logged-in user.
+
+    This endpoint gathers all medications associated with the authenticated user's ID
+    and formats the data for JSON response. It includes detailed information about
+    each medication, including dosage, start and end dates, days of the week for
+    taking the medication, and a history of days the medication was taken.
+
+    Returns:
+        Flask.Response: A JSON response containing a list of medications with the
+        following structure for each medication:
+        - id (int): The unique identifier of the medication.
+        - name (str): The name of the medication.
+        - dosage (str): The dosage details of the medication.
+        - start_date (str): The date the medication was started (ISO 8601 format).
+        - end_date (str): The calculated end date based on the duration and target days.
+        - days (list[int]): A list of numeric values representing days of the week
+            (0=Monday, 6=Sunday) on which the medication should be taken.
+        - duration (int): The duration (in days) for which the medication should be taken.
+        - days_taken (list[str]): A list of dates (ISO 8601 format) on which the
+            medication was marked as taken.
+    """
     user_id = current_user.id
     medications = Medications.query.filter_by(user_id=user_id).all()
 
     meds_data = []
     day_map = {
-        "monday": 0, "tuesday": 1, "wednesday": 2,
-        "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6
+        "monday": 0,
+        "tuesday": 1,
+        "wednesday": 2,
+        "thursday": 3,
+        "friday": 4,
+        "saturday": 5,
+        "sunday": 6,
     }
 
     for med in medications:
@@ -398,7 +415,9 @@ def get_medications():
 
         # Parse days_of_week into numeric values
         if med.days_of_week != "all":
-            target_days = [day_map[day.strip().lower()] for day in med.days_of_week.split(",")]
+            target_days = [
+                day_map[day.strip().lower()] for day in med.days_of_week.split(",")
+            ]
         else:
             target_days = list(range(7))  # All days of the week
 
@@ -412,24 +431,24 @@ def get_medications():
         # Convert days_taken into ISO 8601 format
         days_taken = [
             datetime.strptime(day.strip(), "%m-%d-%Y").strftime("%Y-%m-%d")
-            for day in med.days_taken.split(",") if day
+            for day in med.days_taken.split(",")
+            if day
         ]
 
-        meds_data.append({
-            "id": med.id,
-            "name": med.name,
-            "dosage": med.dosage,
-            "start_date": start_date.strftime("%Y-%m-%d"),
-            "end_date": end_date.strftime("%Y-%m-%d"),
-            "days": target_days,
-            "duration": duration,
-            "days_taken": days_taken,
-        })
+        meds_data.append(
+            {
+                "id": med.id,
+                "name": med.name,
+                "dosage": med.dosage,
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "days": target_days,
+                "duration": duration,
+                "days_taken": days_taken,
+            }
+        )
 
     return jsonify(meds_data)
-
-
-
 
 
 @dash.route("/settings", methods=["GET", "POST"])

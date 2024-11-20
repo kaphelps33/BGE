@@ -3,7 +3,6 @@
 
 from flask_wtf import FlaskForm
 from wtforms import (
-    StringField,
     SubmitField,
     DecimalField,
     IntegerField,
@@ -20,8 +19,7 @@ class MedicationForm(FlaskForm):
 
     # Medication dosage field
     dosage = DecimalField(
-        "Dosage", 
-        validators=[DataRequired(), NumberRange(min=0, max=120)]
+        "Dosage", validators=[DataRequired(), NumberRange(min=0, max=120)]
     )
     # Users can select different measurements of medication
     unit = SelectField(
@@ -65,11 +63,12 @@ class MedicationForm(FlaskForm):
         option_widget=CheckboxInput(),
     )
     # Medication price
-    price = DecimalField("Price", validators=[DataRequired(), NumberRange(min=0, max=1000)])
+    price = DecimalField(
+        "Price", validators=[DataRequired(), NumberRange(min=1, max=100000)]
+    )
     # How long a user takes this medication
     duration = IntegerField(
-        "Duration (Days)", 
-        validators=[DataRequired(), NumberRange(min=1, max=720)]
+        "Duration (Days)", validators=[DataRequired(), NumberRange(min=1, max=30)]
     )
     # Submit button
     submit = SubmitField("Add Medication")
