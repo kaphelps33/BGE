@@ -167,25 +167,22 @@ def get_grouped_meds(user_id):
 def search_medication():
     """
     Search for medications based on the user's query.
-
-    Function retrieves medication data that matches the user's search query
-    and returns the results as a rendered partial template. If no query is
-    provided, an empty result set is returned.
-
-    Returns:
-        Rendered template for the search results containing matching
-        medications.
     """
-    query = request.args.get("query")
-    if query:
-        search_results = MedicationData.query.filter(
-            MedicationData.drug_name.ilike(f"%{query}%")
-        ).all()
-    else:
-        search_results = []
+    query = request.args.get("query", "").strip()
 
-    # Render a partial template to return only the search results
+    # Return nothing if the query is empty
+    if not query:
+        return "", 204  # Empty response with 204 (No Content) status
+
+    # Perform the search query
+    search_results = MedicationData.query.filter(
+        MedicationData.drug_name.ilike(f"%{query}%")
+    ).all()
+
+    # Render the search results
     return render_template("dashboard/search_results.html", medications=search_results)
+
+
 
 
 def get_next_day_of_week(created_at, target_days):

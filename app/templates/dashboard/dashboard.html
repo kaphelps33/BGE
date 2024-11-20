@@ -159,6 +159,29 @@
         </div>
     </div>
 </footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector('input[name="query"]');
+        const resultsContainer = document.querySelector("#results");
+
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.trim();
+
+            if (query === "") {
+                // Clear and hide the results container when input is empty
+                resultsContainer.innerHTML = "";
+                resultsContainer.style.display = "none";
+                return; // Stop further processing
+            } else {
+                // Show the results container when typing
+                resultsContainer.style.display = "block";
+            }
+        });
+    });
+</script>
+
+
 <!-- Footer -->
 <!--Main layout-->
 {% endblock %}
