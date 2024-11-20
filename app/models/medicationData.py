@@ -1,3 +1,5 @@
+"""Medication data table model"""
+
 from app.extensions import db
 
 

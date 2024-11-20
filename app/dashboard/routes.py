@@ -65,14 +65,14 @@ def dashboard():
 
     today = datetime.now().strftime("%A")
 
-    current_date = datetime.now().strftime('%B %d, %Y')
+    current_date = datetime.now().strftime("%B %d, %Y")
 
     return render_template(
         "dashboard/dashboard.html",
         current_user=current_user,
         grouped_meds=grouped_meds,
         today=today,
-        current_date = current_date
+        current_date=current_date,
     )
 
 
@@ -277,9 +277,6 @@ def add_medication(id=None):
                 print("No medication found with the given ID.")
 
     return render_template("dashboard/add_medications.html", form=form)
-
-
-from sqlalchemy import func, update
 
 
 @dash.route("/medication/update_status/<int:med_id>", methods=["POST"])

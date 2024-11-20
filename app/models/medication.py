@@ -1,3 +1,5 @@
+"""Medication table model"""
+
 from datetime import date
 
 from app.extensions import db
