@@ -17,7 +17,7 @@
 
 </head>
 
-<body style="background-color: #e9fdff;">
+<body class="d-flex flex-column min-vh-100" style="background-color: #e9fdff;">
   {% include "navbar.html" %}
   {% with messages = get_flashed_messages(with_categories=True) %}
   {% if messages %}
@@ -41,7 +41,7 @@
 </body>
 
 <!-- Footer -->
-<footer class="footer bg-light text-center text-lg-start p-1 mt-4">
+<footer class="footer bg-light text-center text-lg-start p-3 mt-auto">
   <div class="container">
     <div class="text-muted">
       <p class="mb-0">Disclaimer: This application is for informational purposes only and is not a substitute for
