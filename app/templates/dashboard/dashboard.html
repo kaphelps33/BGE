@@ -90,7 +90,7 @@
                                         <!-- Medication Data -->
                                         <p><strong>Prescription Status:</strong> {{ med_data.rx_otc }}</p>
                                         <p><strong>Dosage:</strong> {{ med.dosage }}</p>
-                                        <p><strong>Price:</strong> ${{ med.price }}</p>
+                                        <p><strong>Price:</strong> ${{ "%.2f"|format(med.price) }}</p>
                                         <p><strong>Duration:</strong> {{ med.duration }} days</p>
                                         <p><strong>Pregnancy Category:</strong>
                                             {% set pregnancy_categories = {
